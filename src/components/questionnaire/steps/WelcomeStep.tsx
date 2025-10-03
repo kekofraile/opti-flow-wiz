@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StepWrapper } from '../StepWrapper';
-import { ChoiceField } from '../ChoiceField';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { Eye } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 
 export const WelcomeStep: React.FC = () => {
   const { data, updateField } = useQuestionnaire();
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   return (
     <StepWrapper
@@ -19,15 +17,6 @@ export const WelcomeStep: React.FC = () => {
           <Eye className="w-10 h-10 text-primary-foreground" />
         </div>
       </div>
-
-      <ChoiceField
-        label="Seleccione su idioma / Select your language"
-        options={['Español', 'English']}
-        value={data.lang}
-        onChange={(value) => updateField('lang', value)}
-        required
-        error={errors.lang}
-      />
 
       <div className="bg-accent rounded-xl p-6 space-y-4">
         <h3 className="font-semibold text-accent-foreground">Protección de datos personales</h3>
@@ -41,7 +30,7 @@ export const WelcomeStep: React.FC = () => {
           <Checkbox
             id="consent"
             checked={data.consent || false}
-            onCheckedChange={(checked) => updateField('consent', checked)}
+            onCheckedChange={(checked) => updateField('consent', checked === true)}
             className="mt-1"
           />
           <label
@@ -52,10 +41,6 @@ export const WelcomeStep: React.FC = () => {
             <span className="text-destructive ml-1">*</span>
           </label>
         </div>
-        
-        {errors.consent && (
-          <p className="text-destructive text-sm">{errors.consent}</p>
-        )}
       </div>
     </StepWrapper>
   );

@@ -1,6 +1,5 @@
 export interface QuestionnaireData {
   // Welcome
-  lang: string;
   consent: boolean;
 
   // Reason
