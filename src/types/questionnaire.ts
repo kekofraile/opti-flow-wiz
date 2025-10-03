@@ -39,6 +39,21 @@ export interface QuestionnaireData {
   allergies?: string[];
   allergy_other?: string;
 
+  // Medication impact
+  medications_groups?: string[];
+  medications_timing?: Record<string, string>;
+  medications_cortico_routes?: string[];
+  medications_cortico_pio?: string;
+  medications_antidiabeticos_tipo?: string[];
+  medications_antihipertensivos_tipo?: string[];
+  medications_anticonvulsivos_sub?: string[];
+  medications_antimalaricos_sub?: string[];
+  medications_hcq_duracion?: string;
+  medications_antituberculosos_sub?: string[];
+  medications_bisfosfonatos_via?: string;
+  medications_tamsulosina_cirugia?: string;
+  medications_anticoagulante_tipo?: string;
+
   // Habits
   screens: string;
   near_tasks: string;
