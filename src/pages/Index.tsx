@@ -64,15 +64,54 @@ const QuestionnaireContent: React.FC = () => {
           toast.error('Por favor complete todos los campos obligatorios');
           return false;
         }
+
+        if (data.uses_glasses === 'Sí') {
+          if (!data.glasses_use || data.glasses_use.length === 0) {
+            toast.error('Por favor complete todos los campos obligatorios');
+            return false;
+          }
+
+          if (!data.progressives) {
+            toast.error('Por favor complete todos los campos obligatorios');
+            return false;
+          }
+
+          if (data.progressives === 'Sí' && !data.progressive_adapt) {
+            toast.error('Por favor complete todos los campos obligatorios');
+            return false;
+          }
+
+          if (!data.glasses_age || !data.glasses_satisfaction) {
+            toast.error('Por favor complete todos los campos obligatorios');
+            return false;
+          }
+        }
         break;
       case 3: // Contacts
         if (!data.uses_contacts) {
           toast.error('Por favor complete todos los campos obligatorios');
           return false;
         }
+
+        if (data.uses_contacts === 'Sí') {
+          if (!data.contacts_freq || !data.contacts_hours || !data.contacts_comfort) {
+            toast.error('Por favor complete todos los campos obligatorios');
+            return false;
+          }
+
+          if (!data.contacts_type || data.contacts_type.length === 0) {
+            toast.error('Por favor complete todos los campos obligatorios');
+            return false;
+          }
+        }
         break;
       case 7: // Habits
         if (!data.screens || !data.near_tasks || !data.night_drive || !data.outdoor || !data.photophobia || !data.sunglasses) {
+          toast.error('Por favor complete todos los campos obligatorios');
+          return false;
+        }
+
+        if (['Sí, habitualmente', 'A veces'].includes(data.night_drive) && !data.night_glare) {
           toast.error('Por favor complete todos los campos obligatorios');
           return false;
         }
