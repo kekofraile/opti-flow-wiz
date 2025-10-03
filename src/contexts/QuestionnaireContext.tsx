@@ -18,7 +18,12 @@ const STORAGE_KEY = 'anamnesis_data';
 const INACTIVITY_WARNING = 90000; // 90 seconds
 const INACTIVITY_TIMEOUT = 300000; // 5 minutes
 
-export const QuestionnaireProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface QuestionnaireProviderProps {
+  children: React.ReactNode;
+  totalSteps: number;
+}
+
+export const QuestionnaireProvider: React.FC<QuestionnaireProviderProps> = ({ children, totalSteps }) => {
   const [data, setData] = useState<Partial<QuestionnaireData>>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved ? JSON.parse(saved) : {};
@@ -26,7 +31,6 @@ export const QuestionnaireProvider: React.FC<{ children: React.ReactNode }> = ({
   
   const [currentStep, setCurrentStep] = useState(0);
   const [lastActivity, setLastActivity] = useState(Date.now());
-  const totalSteps = 8;
 
   // Auto-save to localStorage
   useEffect(() => {
