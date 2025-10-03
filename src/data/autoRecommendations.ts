@@ -39,6 +39,17 @@ export const AUTO_RECOMMENDATION_RULES: AutoRecommendationRule[] = [
   {
     if: {
       all: [
+        { from: 'family_dx', includes: 'Desprendimiento de retina' },
+        { from: 'symptoms_list', any_of: ['Destellos / “moscas volantes”'] },
+      ],
+    },
+    then: ['urgent_referral'],
+    why: 'Antecedente familiar + fotopsias: alto riesgo de RD; derivar urgentemente para examen periférico.',
+    evidence: ['turn1search17', 'turn1search13'],
+  },
+  {
+    if: {
+      all: [
         { from: 'night_drive', any_of: ['Sí, habitualmente', 'A veces'] },
         { from: 'night_glare', any_of: ['Mucho', 'A veces'] },
       ],
