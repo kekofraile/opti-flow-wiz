@@ -212,7 +212,7 @@ export const ReviewStep: React.FC = () => {
     }
   }
   if (anticonvulsantSub.includes('Vigabatrina')) {
-    addNote('Vigabatrina: riesgo de constricción del campo visual; considerar campimetría si síntomas.', 'warning');
+    addNote('Vigabatrina: riesgo de constricción del campo visual; derivar si refiere pérdida periférica.', 'warning');
   }
 
   const antimalaricSub = data.medications_antimalaricos_sub || [];
@@ -220,11 +220,11 @@ export const ReviewStep: React.FC = () => {
     addNote('Antimaláricos: riesgo de retinopatía macular; mantener cribado según guías.', 'warning');
   }
   if (antimalaricSub.includes('Hidroxicloroquina') && data.medications_hcq_duracion === '> 5 años') {
-    addNote('Hidroxicloroquina >5 años: programar cribado anual (CV 10-2, SD-OCT, FAF).', 'warning');
+    addNote('Hidroxicloroquina >5 años: programar cribado anual (retinografía y derivación si hallazgos).', 'warning');
   }
 
   if (medGroups.includes(ANTIARRITMICOS)) {
-    addNote('Amiodarona: verticilata corneal frecuente y neuropatía óptica rara; revisar AV y campos visuales.', 'info');
+    addNote('Amiodarona: verticilata corneal frecuente y neuropatía óptica rara; vigilar AV y síntomas periféricos.', 'info');
   }
 
   if (medGroups.includes(GLUCOSIDOS_CARDIACOS)) {

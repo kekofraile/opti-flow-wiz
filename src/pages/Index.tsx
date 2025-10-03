@@ -449,68 +449,72 @@ const QuestionnaireContent: React.FC = () => {
       />
 
       <Dialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl">
-              <CheckCircle2 className="h-6 w-6 text-primary" />
-              Cuestionario guardado
-            </DialogTitle>
-            <DialogDescription>
-              Descargue o imprima el resumen para incorporarlo a la historia clínica.
-            </DialogDescription>
-          </DialogHeader>
+        <DialogContent className="max-w-3xl sm:max-w-4xl overflow-hidden p-0">
+          <div className="flex max-h-[85vh] flex-col">
+            <DialogHeader className="px-6 pt-6">
+              <DialogTitle className="flex items-center gap-2 text-2xl">
+                <CheckCircle2 className="h-6 w-6 text-primary" />
+                Cuestionario guardado
+              </DialogTitle>
+              <DialogDescription>
+                Descargue o imprima el resumen para incorporarlo a la historia clínica.
+              </DialogDescription>
+            </DialogHeader>
 
-          <div className="grid gap-6">
-            <Card>
-              <CardContent className="py-4">
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <p>
-                    Fecha de exportación:{' '}
-                    {completionTimestamp
-                      ? new Date(completionTimestamp).toLocaleString()
-                      : new Date().toLocaleString()}
-                  </p>
-                  <p>Campos completados: {summarySections.reduce((acc, section) => acc + section.items.length, 0)}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid gap-4">
-              {summarySections.map(section => (
-                <Card key={section.title}>
-                  <CardContent className="py-4 space-y-3">
-                    <h3 className="text-lg font-semibold text-foreground">{section.title}</h3>
-                    <dl className="grid gap-2 text-sm">
-                      {section.items.map(item => (
-                        <div key={item.label} className="grid gap-1">
-                          <dt className="font-medium text-muted-foreground">{item.label}</dt>
-                          <dd className="text-foreground">{item.value}</dd>
-                        </div>
-                      ))}
-                    </dl>
+            <div className="flex-1 overflow-y-auto px-6 pb-6">
+              <div className="grid gap-6 pr-2">
+                <Card>
+                  <CardContent className="py-4">
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <p>
+                        Fecha de exportación:{' '}
+                        {completionTimestamp
+                          ? new Date(completionTimestamp).toLocaleString()
+                          : new Date().toLocaleString()}
+                      </p>
+                      <p>Campos completados: {summarySections.reduce((acc, section) => acc + section.items.length, 0)}</p>
+                    </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
-          </div>
 
-          <DialogFooter className="gap-2">
-            <Button onClick={handlePrint} variant="secondary" className="flex items-center gap-2">
-              <Printer className="h-4 w-4" />
-              Imprimir / Guardar PDF
-            </Button>
-            <Button onClick={handleDownloadTxt} variant="outline" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Descargar resumen (.txt)
-            </Button>
-            <Button onClick={handleDownloadJson} className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Descargar datos (.json)
-            </Button>
-            <Button onClick={handleReset} variant="ghost">
-              Reiniciar cuestionario
-            </Button>
-          </DialogFooter>
+                <div className="grid gap-4">
+                  {summarySections.map(section => (
+                    <Card key={section.title}>
+                      <CardContent className="py-4 space-y-3">
+                        <h3 className="text-lg font-semibold text-foreground">{section.title}</h3>
+                        <dl className="grid gap-2 text-sm">
+                          {section.items.map(item => (
+                            <div key={item.label} className="grid gap-1">
+                              <dt className="font-medium text-muted-foreground">{item.label}</dt>
+                              <dd className="text-foreground">{item.value}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2 border-t border-border bg-background px-6 py-4">
+              <Button onClick={handlePrint} variant="secondary" className="flex items-center gap-2">
+                <Printer className="h-4 w-4" />
+                Imprimir / Guardar PDF
+              </Button>
+              <Button onClick={handleDownloadTxt} variant="outline" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Descargar resumen (.txt)
+              </Button>
+              <Button onClick={handleDownloadJson} className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Descargar datos (.json)
+              </Button>
+              <Button onClick={handleReset} variant="ghost">
+                Reiniciar cuestionario
+              </Button>
+            </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
