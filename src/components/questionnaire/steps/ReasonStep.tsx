@@ -20,7 +20,6 @@ export const ReasonStep: React.FC = () => {
           'Renovación de gafas',
           'Molestias o problemas de visión',
           'Interés en lentes de contacto',
-          'Consulta sobre cirugía refractiva',
         ]}
         value={data.reason_list}
         onChange={(value) => updateField('reason_list', value)}

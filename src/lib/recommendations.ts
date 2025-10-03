@@ -89,10 +89,6 @@ const ACTION_METADATA = {
     label: 'Topografía corneal',
     type: 'diagnostic',
   },
-  tomography_if_available: {
-    label: 'Tomografía corneal (Scheimpflug/AS-OCT) si disponible',
-    type: 'diagnostic',
-  },
   tonometry: {
     label: 'Tonometría',
     type: 'diagnostic',
@@ -101,36 +97,12 @@ const ACTION_METADATA = {
     label: 'Pachimetría (CCT)',
     type: 'diagnostic',
   },
-  oct_rnfl: {
-    label: 'OCT RNFL / mácula para glaucoma',
-    type: 'diagnostic',
-  },
-  vf_24_2: {
-    label: 'Campo visual 24-2',
-    type: 'diagnostic',
-  },
-  oct_rnfl_base: {
-    label: 'OCT RNFL de línea base',
-    type: 'diagnostic',
-  },
-  vf_24_2_if_indicated: {
-    label: 'Campo visual 24-2 (línea base si procede)',
-    type: 'diagnostic',
-  },
   retinography_macula: {
     label: 'Retinografía macular',
     type: 'diagnostic',
   },
-  oct_macula_if_symptoms: {
-    label: 'OCT mácula si hay síntomas o hallazgos',
-    type: 'diagnostic',
-  },
   retinography: {
     label: 'Retinografía de cribado',
-    type: 'diagnostic',
-  },
-  oct_macula_if_central_symptoms: {
-    label: 'OCT mácula si hay síntomas centrales',
     type: 'diagnostic',
   },
   delay_final_rx_if_recent_hyperglycemia: {
@@ -141,10 +113,6 @@ const ACTION_METADATA = {
   ergonomics_counsel: {
     label: 'Consejo sobre ergonomía y micropausas',
     type: 'counseling',
-  },
-  vf_10_2: {
-    label: 'Campo visual 10-2',
-    type: 'diagnostic',
   },
   near_work_distance_check: {
     label: 'Medir distancia real de trabajo cercano',
