@@ -60,6 +60,7 @@ export const AUTO_RECOMMENDATION_RULES: AutoRecommendationRule[] = [
       'check_pantoscopic_tilt',
       'check_vertex_distance',
       'check_frame_wrap',
+      'near_work_distance_check',
       'binocular_suite',
     ],
     why: 'Errores de medida (DP/alturas/angulo/VD/wrap) degradan la performance; problemas de vergencia dificultan adaptación.',
