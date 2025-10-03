@@ -107,6 +107,15 @@ export const AUTO_RECOMMENDATION_RULES: AutoRecommendationRule[] = [
     evidence: ['turn0search19', 'turn0search3'],
   },
   {
+    if: {
+      from: 'systemic',
+      any_of: ['Problemas de tiroides', 'Enfermedad autoinmune (p. ej., artritis reumatoide, lupus)'],
+    },
+    then: ['tbuts', 'meibography', 'blink_rate_check'],
+    why: 'Patologías tiroideas/autoinmunes comprometen superficie ocular y glándulas de Meibomio; evaluar estabilidad y parpadeo.',
+    evidence: ['turn3search25', 'turn0search5'],
+  },
+  {
     if: { from: 'screens', any_of: ['> 8 h', '4–8 h'] },
     then: ['tbuts', 'binocular_suite', 'ergonomics_counsel'],
     why: 'DES + anomalías acomodativas/vergenciales frecuentes con uso intensivo de pantallas.',
