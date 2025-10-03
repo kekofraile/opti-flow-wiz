@@ -10,6 +10,7 @@ import { OcularHistoryStep } from '@/components/questionnaire/steps/OcularHistor
 import { FamilyHistoryStep } from '@/components/questionnaire/steps/FamilyHistoryStep';
 import { GeneralHealthStep } from '@/components/questionnaire/steps/GeneralHealthStep';
 import { HabitsStep } from '@/components/questionnaire/steps/HabitsStep';
+import { MedicationStep } from '@/components/questionnaire/steps/MedicationStep';
 import { ReviewStep } from '@/components/questionnaire/steps/ReviewStep';
 import { Save } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,6 +23,7 @@ const steps = [
   OcularHistoryStep,
   FamilyHistoryStep,
   GeneralHealthStep,
+  MedicationStep,
   HabitsStep,
   ReviewStep,
 ];
@@ -105,7 +107,7 @@ const QuestionnaireContent: React.FC = () => {
           }
         }
         break;
-      case 7: // Habits
+      case 8: // Habits
         if (!data.screens || !data.near_tasks || !data.night_drive || !data.outdoor || !data.photophobia || !data.sunglasses) {
           toast.error('Por favor complete todos los campos obligatorios');
           return false;
@@ -116,7 +118,7 @@ const QuestionnaireContent: React.FC = () => {
           return false;
         }
         break;
-      case 8: // Review
+      case 9: // Review
         if (!data.final_consent) {
           toast.error('Debe confirmar que la información es correcta');
           return false;
