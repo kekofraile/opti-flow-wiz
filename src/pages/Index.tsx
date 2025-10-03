@@ -50,7 +50,7 @@ const QuestionnaireContent: React.FC = () => {
   const validateStep = (): boolean => {
     switch (currentStep) {
       case 0: // Welcome
-        if (!data.lang || !data.consent) {
+        if (!data.consent) {
           toast.error('Por favor complete todos los campos obligatorios');
           return false;
         }
