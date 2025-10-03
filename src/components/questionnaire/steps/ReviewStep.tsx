@@ -1,16 +1,30 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StepWrapper } from '../StepWrapper';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Edit, AlertCircle, CheckCircle2, AlertTriangle, AlertOctagon } from 'lucide-react';
+import { Edit, AlertCircle, CheckCircle2, AlertTriangle, AlertOctagon, ClipboardList } from 'lucide-react';
 import { MEDICATION_GROUP_LABELS, MEDICATION_GROUPS } from '../medicationConstants';
+import { buildAutoRecommendations, AggregatedRecommendationAction } from '@/lib/recommendations';
 
 type NoteSeverity = 'info' | 'warning' | 'critical';
 
 export const ReviewStep: React.FC = () => {
   const { data, updateField, setCurrentStep } = useQuestionnaire();
+
+  const autoRecommendations = useMemo(() => buildAutoRecommendations(data), [data]);
+  const autoRecommendationActions = autoRecommendations.actions;
+  const diagnosticActions = autoRecommendationActions.filter((action) => action.type === 'diagnostic');
+  const managementActions = autoRecommendationActions.filter((action) => action.type === 'management');
+  const counselingActions = autoRecommendationActions.filter((action) => action.type === 'counseling');
+  const actionSections: { title: string; items: AggregatedRecommendationAction[] }[] = [
+    { title: 'Pruebas / exploraciones', items: diagnosticActions },
+    { title: 'Gestión y seguimiento', items: managementActions },
+    { title: 'Consejos al paciente', items: counselingActions },
+  ].filter((section) => section.items.length > 0);
+  const hasAutoRecommendations = autoRecommendationActions.length > 0;
+  const autoAlertActions = autoRecommendationActions.filter((action) => action.severity !== 'info');
 
   const {
     ANTIHISTAMINICOS,
@@ -51,6 +65,34 @@ export const ReviewStep: React.FC = () => {
     }
   };
 
+  const renderActionSection = (section: { title: string; items: AggregatedRecommendationAction[] }) => (
+    <div key={section.title} className="space-y-3">
+      <h4 className="text-sm font-semibold text-foreground">{section.title}</h4>
+      <div className="space-y-4">
+        {section.items.map((action) => (
+          <div key={action.key} className="space-y-2">
+            <div className="flex items-start gap-3">
+              {getSeverityIcon(action.severity)}
+              <div>
+                <p className={`font-medium ${getSeverityTextClass(action.severity)}`}>{action.label}</p>
+                {action.description && (
+                  <p className="text-xs text-muted-foreground">{action.description}</p>
+                )}
+              </div>
+            </div>
+            {action.reasons.length > 0 && (
+              <ul className="ml-8 list-disc space-y-1 text-xs text-muted-foreground">
+                {action.reasons.map((reason, index) => (
+                  <li key={`${action.key}-reason-${index}`}>{reason}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   const hints: { text: string; severity: NoteSeverity }[] = [];
 
   if (data.screens && ['4–8 h', '> 8 h'].includes(data.screens)) {
@@ -73,6 +115,15 @@ export const ReviewStep: React.FC = () => {
       severity: 'info',
     });
   }
+
+  autoAlertActions.forEach((action) => {
+    const reason = action.reasons[0];
+    const baseText = action.description ? `${action.label} — ${action.description}` : action.label;
+    const text = reason ? `${baseText}. Motivo: ${reason}` : baseText;
+    if (!hints.some((hint) => hint.text === text)) {
+      hints.push({ text, severity: action.severity as NoteSeverity });
+    }
+  });
 
   const medGroupsRaw = data.medications_groups ?? [];
   const hasMedicationData = data.medications_groups !== undefined;
@@ -300,6 +351,20 @@ export const ReviewStep: React.FC = () => {
       title="Resumen de su información"
       subtitle="Revise y confirme que todos los datos son correctos"
     >
+      {hasAutoRecommendations && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <ClipboardList className="w-5 h-5 text-primary" />
+              Pruebas y actuaciones recomendadas
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 text-sm">
+            {actionSections.map((section) => renderActionSection(section))}
+          </CardContent>
+        </Card>
+      )}
+
       {hints.length > 0 && (
         <Card className="border-primary/20 bg-primary/5">
           <CardHeader>
