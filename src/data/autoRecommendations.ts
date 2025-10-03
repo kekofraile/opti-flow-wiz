@@ -69,7 +69,12 @@ export const AUTO_RECOMMENDATION_RULES: AutoRecommendationRule[] = [
     if: {
       all: [
         { from: 'uses_contacts', equals: 'Sí' },
-        { from: 'contacts_comfort', any_of: ['Regular', 'Mala'] },
+        {
+          any: [
+            { from: 'contacts_comfort', any_of: ['Regular', 'Mala'] },
+            { from: 'contacts_hours', any_of: ['> 8 h'] },
+          ],
+        },
       ],
     },
     then: ['tbuts', 'staining_cfs', 'meibography', 'blink_rate_check'],
