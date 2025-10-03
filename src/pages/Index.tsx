@@ -90,7 +90,7 @@ const QuestionnaireContent: React.FC = () => {
   const handleNext = () => {
     if (!validateStep()) return;
 
-    if (currentStep === totalSteps - 1) {
+    if (currentStep === steps.length - 1) {
       // Submit
       toast.success('Cuestionario completado correctamente');
       console.log('Submitted data:', data);
@@ -139,7 +139,7 @@ const QuestionnaireContent: React.FC = () => {
         onNext={handleNext}
         onBack={handleBack}
         canGoNext={true}
-        isLastStep={currentStep === totalSteps - 1}
+        isLastStep={currentStep === steps.length - 1}
       />
     </div>
   );
@@ -147,7 +147,7 @@ const QuestionnaireContent: React.FC = () => {
 
 const Index = () => {
   return (
-    <QuestionnaireProvider>
+    <QuestionnaireProvider totalSteps={steps.length}>
       <QuestionnaireContent />
     </QuestionnaireProvider>
   );
