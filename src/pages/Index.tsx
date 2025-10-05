@@ -53,7 +53,7 @@ const QuestionnaireContent: React.FC = () => {
   const [completionTimestamp, setCompletionTimestamp] = useState<string | null>(null);
 
   const summarySections = useMemo(() => {
-    const fieldLabels: Record<keyof QuestionnaireData | string, string> = {
+    const fieldLabels: Record<string, string> = {
       lang: 'Idioma',
       reason_list: 'Motivos de consulta',
       symptoms_list: 'Síntomas asociados',
@@ -103,36 +103,15 @@ const QuestionnaireContent: React.FC = () => {
       signature: 'Firma digital',
     };
 
-    const sections: { title: string; fields: (keyof QuestionnaireData | string)[] }[] = [
-      { title: 'Datos iniciales', fields: ['lang'] },
-      { title: 'Motivo de consulta', fields: ['reason_list', 'symptoms_list', 'last_exam'] },
+    const sectionDefinitions: { title: string; fields: string[] }[] = [
+      { title: 'Motivo de la visita', fields: ['reason_list', 'symptoms_list', 'last_exam'] },
       {
-        title: 'Uso de gafas',
+        title: 'Historia médica / Historial del desarrollo',
         fields: [
-          'uses_glasses',
-          'glasses_use',
-          'progressives',
-          'progressive_adapt',
-          'glasses_age',
-          'glasses_satisfaction',
-        ],
-      },
-      {
-        title: 'Lentes de contacto',
-        fields: ['uses_contacts', 'contacts_freq', 'contacts_type', 'contacts_hours', 'contacts_comfort'],
-      },
-      {
-        title: 'Historial ocular',
-        fields: ['ocular_dx', 'ocular_other', 'ocular_tx', 'ocular_trauma'],
-      },
-      { title: 'Historial familiar', fields: ['family_dx', 'family_other'] },
-      {
-        title: 'Salud general y alergias',
-        fields: ['systemic', 'systemic_other', 'allergies', 'allergy_other'],
-      },
-      {
-        title: 'Medicaciones con impacto visual',
-        fields: [
+          'systemic',
+          'systemic_other',
+          'allergies',
+          'allergy_other',
           'medications_groups',
           'medications_timing',
           'medications_cortico_routes',
@@ -149,10 +128,33 @@ const QuestionnaireContent: React.FC = () => {
         ],
       },
       {
-        title: 'Hábitos visuales',
+        title: 'Historia ocular',
+        fields: [
+          'uses_glasses',
+          'glasses_use',
+          'progressives',
+          'progressive_adapt',
+          'glasses_age',
+          'glasses_satisfaction',
+          'uses_contacts',
+          'contacts_freq',
+          'contacts_type',
+          'contacts_hours',
+          'contacts_comfort',
+          'ocular_dx',
+          'ocular_other',
+          'ocular_tx',
+          'ocular_trauma',
+        ],
+      },
+      { title: 'Historia familiar', fields: ['family_dx', 'family_other'] },
+      { title: 'Historia general', fields: ['lang', 'final_consent', 'signature'] },
+      {
+        title: 'Hábitos',
         fields: ['screens', 'near_tasks', 'night_drive', 'night_glare', 'outdoor', 'photophobia', 'sunglasses'],
       },
-      { title: 'Confirmación final', fields: ['final_consent', 'signature'] },
+      { title: 'Polo anterior', fields: [] },
+      { title: 'Polo posterior', fields: [] },
     ];
 
     const formatValue = (value: unknown): string => {
@@ -166,36 +168,62 @@ const QuestionnaireContent: React.FC = () => {
       return String(value);
     };
 
-    return sections
-      .map(section => {
-        const items = section.fields
-          .map(field => {
-            const rawValue = (data as Partial<QuestionnaireData>)[field as keyof QuestionnaireData];
-            const formattedValue = formatValue(rawValue);
-            if (!formattedValue) return null;
-            return {
-              label: fieldLabels[field] ?? field,
-              value: formattedValue,
-            };
-          })
-          .filter(Boolean) as { label: string; value: string }[];
+    const normalizedData = data as Record<string, unknown>;
+    const usedFields = new Set<string>();
 
-        if (!items.length) return null;
+    const builtSections = sectionDefinitions.map(section => {
+      const items = section.fields
+        .map(field => {
+          const rawValue = normalizedData[field];
+          const formattedValue = formatValue(rawValue);
+          if (!formattedValue) return null;
+          usedFields.add(field);
+          return {
+            label: fieldLabels[field] ?? field,
+            value: formattedValue,
+          };
+        })
+        .filter(Boolean) as { label: string; value: string }[];
+
+      return {
+        title: section.title,
+        items,
+      };
+    });
+
+    const extraItems = Object.entries(normalizedData)
+      .filter(([key]) => !usedFields.has(key))
+      .map(([key, value]) => {
+        const formattedValue = formatValue(value);
+        if (!formattedValue) return null;
         return {
-          title: section.title,
-          items,
+          label: fieldLabels[key] ?? key,
+          value: formattedValue,
         };
       })
-      .filter(Boolean) as { title: string; items: { label: string; value: string }[] }[];
+      .filter(Boolean) as { label: string; value: string }[];
+
+    if (extraItems.length > 0) {
+      builtSections.push({
+        title: 'Otro',
+        items: extraItems,
+      });
+    }
+
+    return builtSections;
   }, [data]);
 
   const buildPlainTextSummary = useMemo(() => {
     const lines: string[] = [];
     summarySections.forEach(section => {
       lines.push(section.title);
-      section.items.forEach(item => {
-        lines.push(`• ${item.label}: ${item.value}`);
-      });
+      if (section.items.length === 0) {
+        lines.push('• Sin información registrada');
+      } else {
+        section.items.forEach(item => {
+          lines.push(`• ${item.label}: ${item.value}`);
+        });
+      }
       lines.push('');
     });
     return lines.join('\n').trim();
@@ -207,9 +235,11 @@ const QuestionnaireContent: React.FC = () => {
       : new Date().toLocaleString();
     const rows = summarySections
       .map(section => {
-        const items = section.items
-          .map(item => `<tr><td class="label">${item.label}</td><td>${item.value}</td></tr>`)
-          .join('');
+        const items = section.items.length
+          ? section.items
+              .map(item => `<tr><td class="label">${item.label}</td><td>${item.value}</td></tr>`)
+              .join('')
+          : '<tr class="empty"><td colspan="2">Sin información registrada</td></tr>';
         return `
           <section>
             <h2>${section.title}</h2>
@@ -231,6 +261,7 @@ const QuestionnaireContent: React.FC = () => {
           table { width: 100%; border-collapse: collapse; }
           td { border: 1px solid #d1d5db; padding: 8px; vertical-align: top; }
           td.label { width: 35%; font-weight: 600; background: #f3f4f6; }
+          tr.empty td { text-align: center; font-style: italic; color: #6b7280; background: #f9fafb; }
           footer { margin-top: 32px; font-size: 12px; color: #6b7280; }
         </style>
       </head>
@@ -458,33 +489,62 @@ const QuestionnaireContent: React.FC = () => {
 
             <div className="flex-1 overflow-y-auto px-6 pb-6">
               <div className="grid gap-6 pr-2">
-                <Card>
-                  <CardContent className="py-4">
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>
-                        Fecha de exportación:{' '}
-                        {completionTimestamp
-                          ? new Date(completionTimestamp).toLocaleString()
-                          : new Date().toLocaleString()}
-                      </p>
-                      <p>Campos completados: {summarySections.reduce((acc, section) => acc + section.items.length, 0)}</p>
+                <Card className="border border-primary/20 bg-primary/5 shadow-sm">
+                  <CardContent className="px-6 py-6">
+                    <div className="grid gap-4 text-sm text-muted-foreground sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                          Fecha de exportación
+                        </p>
+                        <p className="text-xl font-semibold text-foreground">
+                          {completionTimestamp
+                            ? new Date(completionTimestamp).toLocaleString()
+                            : new Date().toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                          Campos completados
+                        </p>
+                        <p className="text-3xl font-bold text-foreground">
+                          {summarySections.reduce((acc, section) => acc + section.items.length, 0)}
+                        </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <div className="grid gap-4">
+                <div className="grid gap-5 md:grid-cols-2">
                   {summarySections.map(section => (
-                    <Card key={section.title}>
-                      <CardContent className="py-4 space-y-3">
-                        <h3 className="text-lg font-semibold text-foreground">{section.title}</h3>
-                        <dl className="grid gap-2 text-sm">
-                          {section.items.map(item => (
-                            <div key={item.label} className="grid gap-1">
-                              <dt className="font-medium text-muted-foreground">{item.label}</dt>
-                              <dd className="text-foreground">{item.value}</dd>
-                            </div>
-                          ))}
-                        </dl>
+                    <Card
+                      key={section.title}
+                      className="border border-border/60 bg-card/95 shadow-md transition-all hover:shadow-lg"
+                    >
+                      <CardContent className="space-y-5 p-6">
+                        <div className="flex items-center gap-3">
+                          <span className="h-10 w-1.5 rounded-full bg-primary" aria-hidden="true" />
+                          <h3 className="text-xl font-bold tracking-tight text-foreground">
+                            {section.title}
+                          </h3>
+                        </div>
+                        {section.items.length > 0 ? (
+                          <dl className="space-y-4">
+                            {section.items.map(item => (
+                              <div key={item.label} className="space-y-2">
+                                <dt className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                                  {item.label}
+                                </dt>
+                                <dd className="rounded-xl bg-muted/50 p-3 text-lg font-semibold text-foreground">
+                                  {item.value}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                        ) : (
+                          <p className="rounded-xl border border-dashed border-muted-foreground/40 bg-muted/40 p-4 text-center text-base font-medium text-muted-foreground">
+                            Sin información registrada
+                          </p>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
