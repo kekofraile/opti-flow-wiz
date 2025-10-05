@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { QuestionnaireData } from '@/types/questionnaire';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const steps = [
   WelcomeStep,
@@ -103,36 +103,35 @@ const QuestionnaireContent: React.FC = () => {
       signature: 'Firma digital',
     };
 
-    const sections: { title: string; fields: (keyof QuestionnaireData | string)[] }[] = [
-      { title: 'Datos iniciales', fields: ['lang'] },
-      { title: 'Motivo de consulta', fields: ['reason_list', 'symptoms_list', 'last_exam'] },
+    type SummaryItem = { label: string; value: string; field: string };
+    type SummarySection = {
+      title: string;
+      items: SummaryItem[];
+      alwaysVisible?: boolean;
+    };
+
+    const formatValue = (value: unknown): string => {
+      if (value === undefined || value === null) return '';
+      if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+      if (Array.isArray(value)) return value.length ? value.join(', ') : '';
+      if (typeof value === 'object') {
+        const entries = Object.entries(value as Record<string, unknown>);
+        return entries.length ? entries.map(([key, val]) => `${key}: ${val}`).join(' | ') : '';
+      }
+      return String(value);
+    };
+
+    const categoryConfig: { title: string; fields: (keyof QuestionnaireData | string)[]; alwaysVisible?: boolean }[] = [
       {
-        title: 'Uso de gafas',
+        title: 'Motivo de la visita',
+        fields: ['reason_list', 'symptoms_list', 'last_exam'],
+        alwaysVisible: true,
+      },
+      {
+        title: 'Historia médica / Historia del desarrollo',
         fields: [
-          'uses_glasses',
-          'glasses_use',
-          'progressives',
-          'progressive_adapt',
-          'glasses_age',
-          'glasses_satisfaction',
-        ],
-      },
-      {
-        title: 'Lentes de contacto',
-        fields: ['uses_contacts', 'contacts_freq', 'contacts_type', 'contacts_hours', 'contacts_comfort'],
-      },
-      {
-        title: 'Historial ocular',
-        fields: ['ocular_dx', 'ocular_other', 'ocular_tx', 'ocular_trauma'],
-      },
-      { title: 'Historial familiar', fields: ['family_dx', 'family_other'] },
-      {
-        title: 'Salud general y alergias',
-        fields: ['systemic', 'systemic_other', 'allergies', 'allergy_other'],
-      },
-      {
-        title: 'Medicaciones con impacto visual',
-        fields: [
+          'systemic',
+          'systemic_other',
           'medications_groups',
           'medications_timing',
           'medications_cortico_routes',
@@ -146,56 +145,121 @@ const QuestionnaireContent: React.FC = () => {
           'medications_bisfosfonatos_via',
           'medications_tamsulosina_cirugia',
           'medications_anticoagulante_tipo',
+          'allergies',
+          'allergy_other',
         ],
+        alwaysVisible: true,
       },
       {
-        title: 'Hábitos visuales',
-        fields: ['screens', 'near_tasks', 'night_drive', 'night_glare', 'outdoor', 'photophobia', 'sunglasses'],
+        title: 'Historia ocular',
+        fields: [
+          'uses_glasses',
+          'glasses_use',
+          'progressives',
+          'progressive_adapt',
+          'glasses_age',
+          'glasses_satisfaction',
+          'uses_contacts',
+          'contacts_freq',
+          'contacts_type',
+          'contacts_hours',
+          'contacts_comfort',
+          'ocular_dx',
+          'ocular_other',
+          'ocular_tx',
+          'ocular_trauma',
+        ],
+        alwaysVisible: true,
       },
-      { title: 'Confirmación final', fields: ['final_consent', 'signature'] },
+      {
+        title: 'Historia familiar',
+        fields: ['family_dx', 'family_other'],
+        alwaysVisible: true,
+      },
+      {
+        title: 'Historia en general',
+        fields: ['screens', 'near_tasks', 'night_drive', 'night_glare', 'outdoor', 'photophobia', 'sunglasses'],
+        alwaysVisible: true,
+      },
+      {
+        title: 'Polo anterior',
+        fields: [],
+        alwaysVisible: true,
+      },
+      {
+        title: 'Polo posterior',
+        fields: [],
+        alwaysVisible: true,
+      },
     ];
 
-    const formatValue = (value: unknown): string => {
-      if (value === undefined || value === null) return '';
-      if (typeof value === 'boolean') return value ? 'Sí' : 'No';
-      if (Array.isArray(value)) return value.length ? value.join(', ') : '';
-      if (typeof value === 'object') {
-        const entries = Object.entries(value as Record<string, unknown>);
-        return entries.length ? entries.map(([key, val]) => `${key}: ${val}`).join(' | ') : '';
-      }
-      return String(value);
-    };
+    const usedFields = new Set<string>();
 
-    return sections
-      .map(section => {
+    const sections = categoryConfig
+      .map<SummarySection>(section => {
+        section.fields.forEach(field => usedFields.add(field as string));
+
         const items = section.fields
           .map(field => {
             const rawValue = (data as Partial<QuestionnaireData>)[field as keyof QuestionnaireData];
             const formattedValue = formatValue(rawValue);
             if (!formattedValue) return null;
             return {
+              field: field as string,
               label: fieldLabels[field] ?? field,
               value: formattedValue,
-            };
+            } satisfies SummaryItem;
           })
-          .filter(Boolean) as { label: string; value: string }[];
+          .filter(Boolean) as SummaryItem[];
 
-        if (!items.length) return null;
         return {
           title: section.title,
           items,
-        };
+          alwaysVisible: section.alwaysVisible,
+        } satisfies SummarySection;
       })
-      .filter(Boolean) as { title: string; items: { label: string; value: string }[] }[];
+      .filter(section => section.items.length > 0 || section.alwaysVisible);
+
+    const additionalItems = (Object.keys(data) as (keyof QuestionnaireData | string)[])
+      .filter(field => !usedFields.has(field as string))
+      .map(field => {
+        const rawValue = (data as Partial<QuestionnaireData>)[field as keyof QuestionnaireData];
+        const formattedValue = formatValue(rawValue);
+        if (!formattedValue) return null;
+        return {
+          field: field as string,
+          label: fieldLabels[field] ?? field,
+          value: formattedValue,
+        } satisfies SummaryItem;
+      })
+      .filter(Boolean) as SummaryItem[];
+
+    if (additionalItems.length) {
+      sections.push({
+        title: 'Otro',
+        items: additionalItems,
+      });
+    }
+
+    return sections;
   }, [data]);
+
+  const filledFieldCount = useMemo(
+    () => summarySections.reduce((acc, section) => acc + section.items.length, 0),
+    [summarySections],
+  );
 
   const buildPlainTextSummary = useMemo(() => {
     const lines: string[] = [];
     summarySections.forEach(section => {
       lines.push(section.title);
-      section.items.forEach(item => {
-        lines.push(`• ${item.label}: ${item.value}`);
-      });
+      if (section.items.length === 0) {
+        lines.push('• Sin datos registrados');
+      } else {
+        section.items.forEach(item => {
+          lines.push(`• ${item.label}: ${item.value}`);
+        });
+      }
       lines.push('');
     });
     return lines.join('\n').trim();
@@ -207,13 +271,22 @@ const QuestionnaireContent: React.FC = () => {
       : new Date().toLocaleString();
     const rows = summarySections
       .map(section => {
-        const items = section.items
-          .map(item => `<tr><td class="label">${item.label}</td><td>${item.value}</td></tr>`)
-          .join('');
+        const items = section.items.length
+          ? section.items
+              .map(
+                item => `
+              <div class="item">
+                <div class="label">${item.label}</div>
+                <div class="value">${item.value}</div>
+              </div>
+            `,
+              )
+              .join('')
+          : '<p class="empty">Sin datos registrados</p>';
         return `
-          <section>
+          <section class="section">
             <h2>${section.title}</h2>
-            <table>${items}</table>
+            <div class="items">${items}</div>
           </section>
         `;
       })
@@ -227,10 +300,13 @@ const QuestionnaireContent: React.FC = () => {
         <style>
           body { font-family: 'Inter', Arial, sans-serif; margin: 24px; color: #111827; }
           h1 { font-size: 24px; margin-bottom: 8px; }
-          h2 { font-size: 18px; margin-top: 24px; margin-bottom: 8px; }
-          table { width: 100%; border-collapse: collapse; }
-          td { border: 1px solid #d1d5db; padding: 8px; vertical-align: top; }
-          td.label { width: 35%; font-weight: 600; background: #f3f4f6; }
+          h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #1f2937; }
+          .section { page-break-inside: avoid; }
+          .items { display: grid; gap: 12px; }
+          .item { border: 1px solid #d1d5db; border-radius: 10px; padding: 12px; background: #f9fafb; }
+          .label { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #4b5563; margin-bottom: 4px; }
+          .value { font-size: 15px; color: #111827; }
+          .empty { font-size: 14px; color: #6b7280; font-style: italic; }
           footer { margin-top: 32px; font-size: 12px; color: #6b7280; }
         </style>
       </head>
@@ -458,33 +534,60 @@ const QuestionnaireContent: React.FC = () => {
 
             <div className="flex-1 overflow-y-auto px-6 pb-6">
               <div className="grid gap-6 pr-2">
-                <Card>
-                  <CardContent className="py-4">
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>
-                        Fecha de exportación:{' '}
-                        {completionTimestamp
-                          ? new Date(completionTimestamp).toLocaleString()
-                          : new Date().toLocaleString()}
-                      </p>
-                      <p>Campos completados: {summarySections.reduce((acc, section) => acc + section.items.length, 0)}</p>
-                    </div>
+                <Card className="border-primary/30 bg-primary/5 shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xl font-semibold text-primary">
+                      Resumen del cuestionario
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-2 text-sm text-muted-foreground">
+                    <p className="text-base text-foreground">
+                      Fecha de exportación:{' '}
+                      {completionTimestamp
+                        ? new Date(completionTimestamp).toLocaleString()
+                        : new Date().toLocaleString()}
+                    </p>
+                    <p className="text-base">
+                      Campos completados:{' '}
+                      <span className="font-semibold text-foreground">{filledFieldCount}</span>
+                    </p>
+                    <p>
+                      Revise cada bloque para traspasar la información rápidamente a la historia clínica.
+                    </p>
                   </CardContent>
                 </Card>
 
-                <div className="grid gap-4">
+                <div className="grid gap-5 lg:grid-cols-2">
                   {summarySections.map(section => (
-                    <Card key={section.title}>
-                      <CardContent className="py-4 space-y-3">
-                        <h3 className="text-lg font-semibold text-foreground">{section.title}</h3>
-                        <dl className="grid gap-2 text-sm">
-                          {section.items.map(item => (
-                            <div key={item.label} className="grid gap-1">
-                              <dt className="font-medium text-muted-foreground">{item.label}</dt>
-                              <dd className="text-foreground">{item.value}</dd>
-                            </div>
-                          ))}
-                        </dl>
+                    <Card
+                      key={section.title}
+                      className="border-2 border-primary/15 bg-card/90 shadow-lg transition hover:border-primary/40"
+                    >
+                      <CardHeader className="border-b border-primary/10 bg-primary/5 pb-4">
+                        <CardTitle className="text-lg font-semibold uppercase tracking-wider text-primary">
+                          {section.title}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4 p-6">
+                        {section.items.length > 0 ? (
+                          <dl className="grid gap-4">
+                            {section.items.map(item => (
+                              <div
+                                key={`${section.title}-${item.label}`}
+                                className="rounded-lg border border-border/60 bg-background/80 p-4 shadow-sm"
+                              >
+                                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                  {item.label}
+                                </dt>
+                                <dd className="text-lg font-semibold text-foreground">{item.value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        ) : (
+                          <p className="text-sm italic text-muted-foreground">
+                            Sin datos registrados en esta sección.
+                          </p>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
