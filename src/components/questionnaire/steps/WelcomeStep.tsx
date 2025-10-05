@@ -1,12 +1,7 @@
 import React from 'react';
 import { StepWrapper } from '../StepWrapper';
-import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { Eye } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-
 export const WelcomeStep: React.FC = () => {
-  const { data, updateField } = useQuestionnaire();
-
   return (
     <StepWrapper
       title="Bienvenido/a a Todo Óptica"
@@ -18,29 +13,14 @@ export const WelcomeStep: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-accent rounded-xl p-6 space-y-4">
-        <h3 className="font-semibold text-accent-foreground">Protección de datos personales</h3>
-        <p className="text-sm text-accent-foreground/80 leading-relaxed">
-          Los datos proporcionados se utilizarán exclusivamente para mejorar la atención oftalmológica
-          y serán tratados conforme al RGPD. Puede ejercer sus derechos de acceso, rectificación y
-          supresión contactando con nuestro centro.
+      <div className="bg-accent rounded-xl p-6 space-y-3 text-accent-foreground/90">
+        <p className="text-base leading-relaxed">
+          Gracias por confiar en nosotros. A continuación encontrará una serie de preguntas que nos
+          ayudarán a conocer mejor sus necesidades visuales.
         </p>
-        
-        <div className="flex items-start gap-3 pt-2">
-          <Checkbox
-            id="consent"
-            checked={data.consent || false}
-            onCheckedChange={(checked) => updateField('consent', checked === true)}
-            className="mt-1"
-          />
-          <label
-            htmlFor="consent"
-            className="text-sm font-medium text-accent-foreground cursor-pointer"
-          >
-            He leído y acepto la política de privacidad y el tratamiento de mis datos de salud
-            <span className="text-destructive ml-1">*</span>
-          </label>
-        </div>
+        <p className="text-sm leading-relaxed">
+          Cuando esté preparado/a, haga clic en «Siguiente» para comenzar con el cuestionario.
+        </p>
       </div>
     </StepWrapper>
   );

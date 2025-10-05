@@ -55,7 +55,6 @@ const QuestionnaireContent: React.FC = () => {
   const summarySections = useMemo(() => {
     const fieldLabels: Record<keyof QuestionnaireData | string, string> = {
       lang: 'Idioma',
-      consent: 'Consentimiento inicial',
       reason_list: 'Motivos de consulta',
       symptoms_list: 'Síntomas asociados',
       last_exam: 'Último examen visual',
@@ -105,7 +104,7 @@ const QuestionnaireContent: React.FC = () => {
     };
 
     const sections: { title: string; fields: (keyof QuestionnaireData | string)[] }[] = [
-      { title: 'Datos iniciales', fields: ['lang', 'consent'] },
+      { title: 'Datos iniciales', fields: ['lang'] },
       { title: 'Motivo de consulta', fields: ['reason_list', 'symptoms_list', 'last_exam'] },
       {
         title: 'Uso de gafas',
@@ -315,10 +314,6 @@ const QuestionnaireContent: React.FC = () => {
   const validateStep = (): boolean => {
     switch (currentStep) {
       case 0: // Welcome
-        if (!data.consent) {
-          toast.error('Por favor complete todos los campos obligatorios');
-          return false;
-        }
         break;
       case 1: // Reason
         if (!data.reason_list || data.reason_list.length === 0 || !data.last_exam) {

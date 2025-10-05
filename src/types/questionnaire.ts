@@ -1,7 +1,4 @@
 export interface QuestionnaireData {
-  // Welcome
-  consent: boolean;
-
   // Reason
   reason_list: string[];
   symptoms_list?: string[];
