@@ -4,6 +4,7 @@ import { ChoiceField } from '../ChoiceField';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { Pill } from 'lucide-react';
 import {
+  MEDICATION_GROUP_LABELS,
   MEDICATION_GROUPS,
   MEDICATION_TIMING_OPTIONS,
   MedicationGroup,
@@ -40,55 +41,58 @@ const DEPENDENT_FIELDS: (keyof QuestionnaireDataUpdates)[] = [
   'medications_anticoagulante_tipo',
 ];
 
+const {
+  ANTIHISTAMINICOS,
+  ANTIDEPRESIVOS,
+  ANTIPSICOTICOS,
+  CORTICOESTEROIDES,
+  ANTIDIABETICOS,
+  ANTIHIPERTENSIVOS,
+  ALFA_BLOQUEANTES,
+  ANTICOAGULANTES,
+  INHIBIDORES_PDE5,
+  ANTICONVULSIVOS,
+  ANTIMALARICOS,
+  ANTIARRITMICOS,
+  GLUCOSIDOS_CARDIACOS,
+  BISFOSFONATOS,
+  RETINOIDES,
+  ANTITUBERCULOSOS,
+  TERAPIA_HORMONAL,
+  OTROS,
+  NINGUNO,
+} = MEDICATION_GROUP_LABELS;
+
 const GROUP_DEPENDENCIES: Record<MedicationGroup, (keyof QuestionnaireDataUpdates)[]> = {
-  'Antihistamínicos (alergia)': [],
-  'Antidepresivos (tricíclicos, ISRS/IRSN, IMAO)': [],
-  'Antipsicóticos (típicos/atípicos)': [],
-  'Corticoesteroides (cualquier vía, incluidos colirios esteroides)': [
-    'medications_cortico_routes',
-    'medications_cortico_pio',
-  ],
-  'Antidiabéticos (insulina, metformina, sulfonilureas, SGLT2, GLP-1, glitazonas)': [
-    'medications_antidiabeticos_tipo',
-  ],
-  'Antihipertensivos (betabloqueantes, diuréticos)': [
-    'medications_antihipertensivos_tipo',
-  ],
-  'Alfa-1 bloqueantes para próstata (p. ej., tamsulosina, alfuzosina, doxazosina)': [
-    'medications_tamsulosina_cirugia',
-  ],
-  'Anticoagulantes/antiagregantes (warfarina/acenocumarol, ACOD; aspirina, clopidogrel, etc.)': [
-    'medications_anticoagulante_tipo',
-  ],
-  'Inhibidores PDE-5 (disfunción eréctil)': [],
-  'Anticonvulsivos/neuromoduladores (topiramato, vigabatrina, otros)': [
-    'medications_anticonvulsivos_sub',
-  ],
-  'Antimaláricos/inmunomoduladores (hidroxicloroquina/cloroquina)': [
-    'medications_antimalaricos_sub',
-    'medications_hcq_duracion',
-  ],
-  'Antiarrítmicos (amiodarona)': [],
-  'Glucósidos cardiacos (digoxina)': [],
-  'Bisfosfonatos (alendronato/risedronato/zoledrónico)': [
-    'medications_bisfosfonatos_via',
-  ],
-  'Retinoides sistémicos (isotretinoína)': [],
-  'Antituberculosos (etambutol, isoniazida)': [
-    'medications_antituberculosos_sub',
-  ],
-  'Terapia hormonal (tamoxifeno)': [],
-  'Otros (no listado)': [],
-  'Ninguno': [],
+  [ANTIHISTAMINICOS]: [],
+  [ANTIDEPRESIVOS]: [],
+  [ANTIPSICOTICOS]: [],
+  [CORTICOESTEROIDES]: ['medications_cortico_routes', 'medications_cortico_pio'],
+  [ANTIDIABETICOS]: ['medications_antidiabeticos_tipo'],
+  [ANTIHIPERTENSIVOS]: ['medications_antihipertensivos_tipo'],
+  [ALFA_BLOQUEANTES]: ['medications_tamsulosina_cirugia'],
+  [ANTICOAGULANTES]: ['medications_anticoagulante_tipo'],
+  [INHIBIDORES_PDE5]: [],
+  [ANTICONVULSIVOS]: ['medications_anticonvulsivos_sub'],
+  [ANTIMALARICOS]: ['medications_antimalaricos_sub', 'medications_hcq_duracion'],
+  [ANTIARRITMICOS]: [],
+  [GLUCOSIDOS_CARDIACOS]: [],
+  [BISFOSFONATOS]: ['medications_bisfosfonatos_via'],
+  [RETINOIDES]: [],
+  [ANTITUBERCULOSOS]: ['medications_antituberculosos_sub'],
+  [TERAPIA_HORMONAL]: [],
+  [OTROS]: [],
+  [NINGUNO]: [],
 };
 
 export const MedicationStep: React.FC = () => {
   const { data, updateField } = useQuestionnaire();
 
   const selectedGroups = useMemo(() => {
+    if (data.medications_any !== 'Sí') return [] as MedicationGroup[];
     if (!data.medications_groups) return [] as MedicationGroup[];
     return (Array.isArray(data.medications_groups) ? data.medications_groups : []) as MedicationGroup[];
-  }, [data.medications_groups]);
+  }, [data.medications_any, data.medications_groups]);
 
   const cleanDependentFields = (groupsToClear: MedicationGroup[] | 'ALL') => {
     const fieldsToClear = new Set<keyof QuestionnaireDataUpdates>();
@@ -104,11 +108,26 @@ export const MedicationStep: React.FC = () => {
     fieldsToClear.forEach((field) => updateField(field, undefined));
   };
 
+  const handleAnyChange = (value: string | string[]) => {
+    const selected = Array.isArray(value) ? value[0] : value;
+    const normalized = selected ?? undefined;
+
+    updateField('medications_any', normalized);
+
+    if (normalized !== 'Sí') {
+      updateField('medications_groups', undefined);
+      updateField('medications_timing', undefined);
+      cleanDependentFields('ALL');
+    }
+  };
+
   const handleGroupChange = (value: string | string[]) => {
+    if (data.medications_any !== 'Sí') return;
+
     const newSelection = (Array.isArray(value) ? value : [value]).filter(Boolean) as MedicationGroup[];
 
-    if (newSelection.includes('Ninguno')) {
-      updateField('medications_groups', ['Ninguno']);
+    if (newSelection.includes(NINGUNO)) {
+      updateField('medications_groups', [NINGUNO]);
       updateField('medications_timing', undefined);
       cleanDependentFields('ALL');
       return;
@@ -116,7 +135,7 @@ export const MedicationStep: React.FC = () => {
 
     const removedGroups = selectedGroups.filter((group) => !newSelection.includes(group));
 
-    updateField('medications_groups', newSelection);
+    updateField('medications_groups', newSelection.length > 0 ? newSelection : undefined);
 
     if (removedGroups.length > 0) {
       const currentTiming = { ...(data.medications_timing || {}) };
@@ -137,15 +156,19 @@ export const MedicationStep: React.FC = () => {
     updateField('medications_timing', newTiming);
   };
 
-  const shouldShowGroup = (group: MedicationGroup) => selectedGroups.includes(group);
+  const shouldShowGroup = (group: MedicationGroup) => data.medications_any === 'Sí' && selectedGroups.includes(group);
 
   const activeGroups = useMemo(
     () =>
-      MEDICATION_GROUPS.filter(
-        (group): group is MedicationGroup => group !== 'Ninguno' && selectedGroups.includes(group as MedicationGroup)
-      ),
-    [selectedGroups]
+      data.medications_any === 'Sí'
+        ? MEDICATION_GROUPS.filter(
+            (group): group is MedicationGroup => group !== NINGUNO && selectedGroups.includes(group as MedicationGroup)
+          )
+        : [],
+    [data.medications_any, selectedGroups]
   );
+
+  const showMedicationDetails = data.medications_any === 'Sí';
 
   return (
     <StepWrapper
@@ -158,15 +181,24 @@ export const MedicationStep: React.FC = () => {
       </div>
 
       <ChoiceField
-        label="¿Toma actualmente o ha tomado en los últimos 6 meses alguno de estos grupos?"
-        options={[...MEDICATION_GROUPS]}
-        value={data.medications_groups}
-        onChange={handleGroupChange}
-        multiple
-        exclusiveOptions={['Ninguno']}
+        label="¿Toma actualmente o ha tomado en los últimos 6 meses medicación sistémica con posible impacto ocular?"
+        options={['Sí', 'No']}
+        value={data.medications_any}
+        onChange={handleAnyChange}
       />
 
-      {activeGroups.length > 0 && (
+      {showMedicationDetails && (
+        <ChoiceField
+          label="Seleccione los grupos que aplica"
+          options={[...MEDICATION_GROUPS]}
+          value={data.medications_groups}
+          onChange={handleGroupChange}
+          multiple
+          exclusiveOptions={[NINGUNO]}
+        />
+      )}
+
+      {showMedicationDetails && activeGroups.length > 0 && (
         <div className="mt-8 space-y-4">
           <h4 className="text-lg font-semibold text-foreground">Momento de uso</h4>
           <p className="text-sm text-muted-foreground">
@@ -186,7 +218,7 @@ export const MedicationStep: React.FC = () => {
         </div>
       )}
 
-      {shouldShowGroup('Corticoesteroides (cualquier vía, incluidos colirios esteroides)') && (
+      {shouldShowGroup(CORTICOESTEROIDES) && (
         <div className="mt-8 space-y-6">
           <ChoiceField
             label="Corticoesteroides · Vía"
@@ -213,7 +245,7 @@ export const MedicationStep: React.FC = () => {
         </div>
       )}
 
-      {shouldShowGroup('Antidiabéticos (insulina, metformina, sulfonilureas, SGLT2, GLP-1, glitazonas)') && (
+      {shouldShowGroup(ANTIDIABETICOS) && (
         <div className="mt-8">
           <ChoiceField
             label="Antidiabéticos · Tipo"
@@ -233,7 +265,7 @@ export const MedicationStep: React.FC = () => {
         </div>
       )}
 
-      {shouldShowGroup('Antihipertensivos (betabloqueantes, diuréticos)') && (
+      {shouldShowGroup(ANTIHIPERTENSIVOS) && (
         <div className="mt-8">
           <ChoiceField
             label="Antihipertensivos · Tipo"
@@ -245,7 +277,7 @@ export const MedicationStep: React.FC = () => {
         </div>
       )}
 
-      {shouldShowGroup('Anticonvulsivos/neuromoduladores (topiramato, vigabatrina, otros)') && (
+      {shouldShowGroup(ANTICONVULSIVOS) && (
         <div className="mt-8">
           <ChoiceField
             label="Anticonvulsivos · Subgrupo"
@@ -257,7 +289,7 @@ export const MedicationStep: React.FC = () => {
         </div>
       )}
 
-      {shouldShowGroup('Antimaláricos/inmunomoduladores (hidroxicloroquina/cloroquina)') && (
+      {shouldShowGroup(ANTIMALARICOS) && (
         <div className="mt-8 space-y-6">
           <ChoiceField
             label="Antimaláricos/inmunomoduladores"
@@ -284,7 +316,7 @@ export const MedicationStep: React.FC = () => {
         </div>
       )}
 
-      {shouldShowGroup('Antituberculosos (etambutol, isoniazida)') && (
+      {shouldShowGroup(ANTITUBERCULOSOS) && (
         <div className="mt-8">
           <ChoiceField
             label="Antituberculosos"
@@ -296,7 +328,7 @@ export const MedicationStep: React.FC = () => {
         </div>
       )}
 
-      {shouldShowGroup('Bisfosfonatos (alendronato/risedronato/zoledrónico)') && (
+      {shouldShowGroup(BISFOSFONATOS) && (
         <div className="mt-8">
           <ChoiceField
             label="Bisfosfonatos · Vía"
@@ -307,7 +339,7 @@ export const MedicationStep: React.FC = () => {
         </div>
       )}
 
-      {shouldShowGroup('Alfa-1 bloqueantes para próstata (p. ej., tamsulosina, alfuzosina, doxazosina)') && (
+      {shouldShowGroup(ALFA_BLOQUEANTES) && (
         <div className="mt-8">
           <ChoiceField
             label="¿Tiene programada cirugía de cataratas?"
@@ -318,7 +350,7 @@ export const MedicationStep: React.FC = () => {
         </div>
       )}
 
-      {shouldShowGroup('Anticoagulantes/antiagregantes (warfarina/acenocumarol, ACOD; aspirina, clopidogrel, etc.)') && (
+      {shouldShowGroup(ANTICOAGULANTES) && (
         <div className="mt-8">
           <ChoiceField
             label="Anticoagulantes/antiagregantes · Tipo"

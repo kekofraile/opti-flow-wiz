@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Edit, AlertCircle, CheckCircle2, AlertTriangle, AlertOctagon, ClipboardList } from 'lucide-react';
-import { MEDICATION_GROUP_LABELS, MEDICATION_GROUPS } from '../medicationConstants';
+import { MEDICATION_GROUP_LABELS, MEDICATION_GROUPS, MedicationGroup } from '../medicationConstants';
 import { buildAutoRecommendations, AggregatedRecommendationAction } from '@/lib/recommendations';
 
 type NoteSeverity = 'info' | 'warning' | 'critical';
@@ -125,25 +125,33 @@ export const ReviewStep: React.FC = () => {
     }
   });
 
-  const medGroupsRaw = data.medications_groups ?? [];
-  const hasMedicationData = data.medications_groups !== undefined;
-  const hasNone = medGroupsRaw.includes(NINGUNO);
-  const medGroups = hasNone ? [] : medGroupsRaw;
-  const orderedMedicationGroups = MEDICATION_GROUPS.filter(
-    (group) => group !== NINGUNO && medGroups.includes(group)
-  );
-  const medicationGroupRowValue = hasNone
-    ? NINGUNO
-    : orderedMedicationGroups.length
-      ? orderedMedicationGroups
-          .map((group) => {
-            const timing = data.medications_timing?.[group];
-            return timing ? `${group} — ${timing}` : group;
-          })
-          .join('; ')
-      : hasMedicationData
-        ? 'Sin detallar'
-        : 'Sin indicar';
+  const medicationAny = data.medications_any;
+  const hasMedicationExposure = medicationAny === 'Sí';
+  const medGroupsRaw = hasMedicationExposure
+    ? ((data.medications_groups ?? []) as MedicationGroup[])
+    : ([] as MedicationGroup[]);
+  const hasMedicationData = hasMedicationExposure && data.medications_groups !== undefined;
+  const hasNone = hasMedicationExposure && medGroupsRaw.includes(NINGUNO);
+  const medGroups = hasNone ? ([] as MedicationGroup[]) : medGroupsRaw;
+  const orderedMedicationGroups = hasMedicationExposure
+    ? (MEDICATION_GROUPS.filter(
+        (group): group is MedicationGroup => group !== NINGUNO && medGroups.includes(group as MedicationGroup)
+      ) as MedicationGroup[])
+    : [];
+  const medicationGroupRowValue = !hasMedicationExposure
+    ? undefined
+    : hasNone
+      ? NINGUNO
+      : orderedMedicationGroups.length
+        ? orderedMedicationGroups
+            .map((group) => {
+              const timing = data.medications_timing?.[group];
+              return timing ? `${group} — ${timing}` : group;
+            })
+            .join('; ')
+        : hasMedicationData
+          ? 'Sin detallar'
+          : 'Sin indicar';
 
   const medicationNotes: { text: string; severity: NoteSeverity }[] = [];
   const addNote = (text: string, severity: NoteSeverity = 'info') => {
@@ -153,7 +161,7 @@ export const ReviewStep: React.FC = () => {
   };
 
   const drynessGroups = new Set([ANTIHISTAMINICOS, ANTIDEPRESIVOS, ANTIPSICOTICOS]);
-  const antihipertensiveDryTypes = data.medications_antihipertensivos_tipo || [];
+  const antihipertensiveDryTypes = hasMedicationExposure ? data.medications_antihipertensivos_tipo || [] : [];
   if (
     medGroups.some((group) => drynessGroups.has(group)) ||
     antihipertensiveDryTypes.some((type) => ['Betabloqueantes', 'Diuréticos'].includes(type))
@@ -168,7 +176,7 @@ export const ReviewStep: React.FC = () => {
     }
   }
 
-  const antidiabeticTypes = data.medications_antidiabeticos_tipo || [];
+  const antidiabeticTypes = hasMedicationExposure ? data.medications_antidiabeticos_tipo || [] : [];
   if (antidiabeticTypes.includes('Agonistas GLP-1')) {
     addNote('En diabéticos con RD previa, vigilar posible empeoramiento con control glucémico rápido (agonistas GLP-1).', 'info');
   }
@@ -200,7 +208,7 @@ export const ReviewStep: React.FC = () => {
     addNote('Inhibidores PDE-5: posibles alteraciones del color/fotofobia transitorias; NAION rara, derivar si pérdida visual súbita.', 'info');
   }
 
-  const anticonvulsantSub = data.medications_anticonvulsivos_sub || [];
+  const anticonvulsantSub = hasMedicationExposure ? data.medications_anticonvulsivos_sub || [] : [];
   if (anticonvulsantSub.includes('Topiramato')) {
     addNote('Topiramato: riesgo de miopía súbita/cierre angular; urgencia si dolor ocular o borrosidad aguda.', 'warning');
     const topiramateActive = data.medications_timing?.[ANTICONVULSIVOS] === 'En curso';
@@ -215,7 +223,7 @@ export const ReviewStep: React.FC = () => {
     addNote('Vigabatrina: riesgo de constricción del campo visual; derivar si refiere pérdida periférica.', 'warning');
   }
 
-  const antimalaricSub = data.medications_antimalaricos_sub || [];
+  const antimalaricSub = hasMedicationExposure ? data.medications_antimalaricos_sub || [] : [];
   if (antimalaricSub.includes('Hidroxicloroquina') || antimalaricSub.includes('Cloroquina')) {
     addNote('Antimaláricos: riesgo de retinopatía macular; mantener cribado según guías.', 'warning');
   }
@@ -239,7 +247,7 @@ export const ReviewStep: React.FC = () => {
     addNote('Isotretinoína: alto riesgo de ojo seco evaporativo y posible intolerancia a lentes de contacto.', 'warning');
   }
 
-  const antitbSub = data.medications_antituberculosos_sub || [];
+  const antitbSub = hasMedicationExposure ? data.medications_antituberculosos_sub || [] : [];
   if (antitbSub.includes('Etambutol')) {
     addNote('Etambutol: riesgo de neuritis óptica (discromatopsia rojo-verde, escotoma central).', 'warning');
   }
@@ -260,18 +268,23 @@ export const ReviewStep: React.FC = () => {
     title: 'Medicación con posible impacto ocular',
     step: 7,
     data: [
-      { label: 'Grupos y momento de uso', value: medicationGroupRowValue },
-      { label: 'Corticoesteroides · Vía', value: data.medications_cortico_routes?.join(', ') },
-      { label: 'Controles previos de PIO', value: data.medications_cortico_pio },
-      { label: 'Antidiabéticos · Tipo', value: antidiabeticTypes.join(', ') || undefined },
-      { label: 'Antihipertensivos · Tipo', value: antihipertensiveDryTypes.join(', ') || undefined },
-      { label: 'Anticonvulsivos · Subgrupo', value: anticonvulsantSub.join(', ') || undefined },
-      { label: 'Antimaláricos/inmunomoduladores', value: antimalaricSub.join(', ') || undefined },
-      { label: 'Hidroxicloroquina · Tiempo de uso', value: data.medications_hcq_duracion },
-      { label: 'Antituberculosos', value: antitbSub.join(', ') || undefined },
-      { label: 'Bisfosfonatos · Vía', value: data.medications_bisfosfonatos_via },
-      { label: 'Cirugía de cataratas programada', value: data.medications_tamsulosina_cirugia },
-      { label: 'Anticoagulantes/antiagregantes · Tipo', value: data.medications_anticoagulante_tipo },
+      { label: '¿Medicación sistémica con posible impacto ocular?', value: medicationAny ?? 'Sin indicar' },
+      ...(hasMedicationExposure
+        ? [
+            { label: 'Grupos y momento de uso', value: medicationGroupRowValue },
+            { label: 'Corticoesteroides · Vía', value: data.medications_cortico_routes?.join(', ') },
+            { label: 'Controles previos de PIO', value: data.medications_cortico_pio },
+            { label: 'Antidiabéticos · Tipo', value: antidiabeticTypes.join(', ') || undefined },
+            { label: 'Antihipertensivos · Tipo', value: antihipertensiveDryTypes.join(', ') || undefined },
+            { label: 'Anticonvulsivos · Subgrupo', value: anticonvulsantSub.join(', ') || undefined },
+            { label: 'Antimaláricos/inmunomoduladores', value: antimalaricSub.join(', ') || undefined },
+            { label: 'Hidroxicloroquina · Tiempo de uso', value: data.medications_hcq_duracion },
+            { label: 'Antituberculosos', value: antitbSub.join(', ') || undefined },
+            { label: 'Bisfosfonatos · Vía', value: data.medications_bisfosfonatos_via },
+            { label: 'Cirugía de cataratas programada', value: data.medications_tamsulosina_cirugia },
+            { label: 'Anticoagulantes/antiagregantes · Tipo', value: data.medications_anticoagulante_tipo },
+          ]
+        : []),
     ],
   };
 

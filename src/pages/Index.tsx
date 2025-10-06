@@ -79,6 +79,7 @@ const QuestionnaireContent: React.FC = () => {
       systemic_other: 'Otros antecedentes sistémicos',
       allergies: 'Alergias',
       allergy_other: 'Otras alergias',
+      medications_any: '¿Medicación con posible impacto ocular?',
       medications_groups: 'Medicaciones relevantes',
       medications_timing: 'Horario/observaciones medicación',
       medications_cortico_routes: 'Vías de administración corticoides',
@@ -132,6 +133,7 @@ const QuestionnaireContent: React.FC = () => {
         fields: [
           'systemic',
           'systemic_other',
+          'medications_any',
           'medications_groups',
           'medications_timing',
           'medications_cortico_routes',
