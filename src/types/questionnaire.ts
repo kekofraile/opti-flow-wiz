@@ -38,6 +38,7 @@ export interface QuestionnaireData {
   allergy_other?: string;
 
   // Medication impact
+  medications_any?: string;
   medications_groups?: string[];
   medications_timing?: Record<string, string>;
   medications_cortico_routes?: string[];
