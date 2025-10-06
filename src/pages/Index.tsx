@@ -111,6 +111,7 @@ const QuestionnaireContent: React.FC = () => {
       title: string;
       items: SummaryItem[];
       alwaysVisible?: boolean;
+      narrative?: string[];
     };
 
     const formatValue = (value: unknown): string => {
@@ -124,7 +125,91 @@ const QuestionnaireContent: React.FC = () => {
       return String(value);
     };
 
-    const categoryConfig: { title: string; fields: (keyof QuestionnaireData | string)[]; alwaysVisible?: boolean }[] = [
+    const buildGeneralHistoryNarrative = (formData: Partial<QuestionnaireData>): string[] => {
+      if (!formData) return [];
+
+      const sentences: string[] = [];
+
+      const screenMap: Record<string, string> = {
+        '< 2 h': 'menos de dos horas al día',
+        '2–4 h': 'entre dos y cuatro horas diarias',
+        '4–8 h': 'entre cuatro y ocho horas diarias',
+        '> 8 h': 'más de ocho horas diarias',
+      };
+
+      if (formData.screens) {
+        const screenSentence = screenMap[formData.screens] ?? formData.screens.toLowerCase();
+        sentences.push(`Uso de pantallas ${screenSentence}.`);
+      }
+
+      const nearTaskMap: Record<string, string> = {
+        'Muchas horas al día': 'durante muchas horas al día',
+        '1–2 h al día': 'alrededor de una o dos horas al día',
+        'Ocasional': 'de forma ocasional',
+        'Casi nunca': 'casi nunca',
+      };
+
+      if (formData.near_tasks) {
+        const nearSentence = nearTaskMap[formData.near_tasks] ?? formData.near_tasks.toLowerCase();
+        sentences.push(`Realiza tareas en visión próxima ${nearSentence}.`);
+      }
+
+      if (formData.night_drive) {
+        const nightDriveMap: Record<string, string> = {
+          'Sí, habitualmente': 'Conduce de noche habitualmente.',
+          'A veces': 'Conduce de noche a veces.',
+          'Rara vez o nunca': 'No conduce o rara vez conduce de noche.',
+        };
+        sentences.push(nightDriveMap[formData.night_drive] ?? `Conducción nocturna: ${formData.night_drive}.`);
+      }
+
+      if (formData.night_glare) {
+        const glareMap: Record<string, string> = {
+          'Mucho': 'Refiere mucho deslumbramiento nocturno.',
+          'A veces': 'Refiere deslumbramiento nocturno ocasional.',
+          'No': 'No refiere deslumbramiento nocturno.',
+        };
+        sentences.push(glareMap[formData.night_glare] ?? `Deslumbramiento nocturno: ${formData.night_glare}.`);
+      }
+
+      if (formData.outdoor) {
+        const outdoorMap: Record<string, string> = {
+          'Muchas horas': 'Pasa muchas horas al aire libre.',
+          'Un par de horas': 'Pasa un par de horas al aire libre.',
+          'Muy poco': 'Pasa muy poco tiempo al aire libre.',
+        };
+        sentences.push(outdoorMap[formData.outdoor] ?? `Tiempo al aire libre: ${formData.outdoor}.`);
+      }
+
+      if (formData.photophobia) {
+        const photophobiaMap: Record<string, string> = {
+          'Sí, mucha': 'Presenta fotofobia marcada.',
+          'Un poco': 'Presenta algo de fotofobia.',
+          'No': 'No presenta fotofobia.',
+        };
+        sentences.push(photophobiaMap[formData.photophobia] ?? `Fotofobia: ${formData.photophobia}.`);
+      }
+
+      if (formData.sunglasses) {
+        const sunglassesMap: Record<string, string> = {
+          'Casi siempre': 'Usa gafas de sol casi siempre.',
+          'A veces': 'Usa gafas de sol a veces.',
+          'Rara vez o nunca': 'Rara vez o nunca usa gafas de sol.',
+        };
+        sentences.push(sunglassesMap[formData.sunglasses] ?? `Uso de gafas de sol: ${formData.sunglasses}.`);
+      }
+
+      return sentences.filter(Boolean);
+    };
+
+    type CategoryConfig = {
+      title: string;
+      fields: (keyof QuestionnaireData | string)[];
+      alwaysVisible?: boolean;
+      narrativeBuilder?: (data: Partial<QuestionnaireData>) => string[];
+    };
+
+    const categoryConfig: CategoryConfig[] = [
       {
         title: 'Motivo de la visita',
         fields: ['reason_list', 'symptoms_list', 'last_exam'],
@@ -185,17 +270,16 @@ const QuestionnaireContent: React.FC = () => {
       {
         title: 'Historia en general',
         fields: ['screens', 'near_tasks', 'night_drive', 'night_glare', 'outdoor', 'photophobia', 'sunglasses'],
+        narrativeBuilder: buildGeneralHistoryNarrative,
         alwaysVisible: true,
       },
       {
         title: 'Polo anterior',
         fields: [],
-        alwaysVisible: true,
       },
       {
         title: 'Polo posterior',
         fields: [],
-        alwaysVisible: true,
       },
     ];
 
@@ -218,13 +302,18 @@ const QuestionnaireContent: React.FC = () => {
           })
           .filter(Boolean) as SummaryItem[];
 
+        const narrative = section.narrativeBuilder?.(data) ?? [];
+
         return {
           title: section.title,
           items,
           alwaysVisible: section.alwaysVisible,
+          narrative: narrative.filter(sentence => sentence && sentence.trim().length > 0),
         } satisfies SummarySection;
       })
-      .filter(section => section.items.length > 0 || section.alwaysVisible);
+      .filter(section =>
+        section.items.length > 0 || (section.narrative && section.narrative.length > 0) || section.alwaysVisible,
+      );
 
     const additionalItems = (Object.keys(data) as (keyof QuestionnaireData | string)[])
       .filter(field => !usedFields.has(field as string))
@@ -259,7 +348,11 @@ const QuestionnaireContent: React.FC = () => {
     const lines: string[] = [];
     summarySections.forEach(section => {
       lines.push(section.title);
-      if (section.items.length === 0) {
+      if (section.narrative && section.narrative.length > 0) {
+        section.narrative.forEach(sentence => {
+          lines.push(sentence);
+        });
+      } else if (section.items.length === 0) {
         lines.push('• Sin datos registrados');
       } else {
         section.items.forEach(item => {
@@ -277,18 +370,26 @@ const QuestionnaireContent: React.FC = () => {
       : new Date().toLocaleString();
     const rows = summarySections
       .map(section => {
-        const items = section.items.length
-          ? section.items
+        const items = section.narrative && section.narrative.length
+          ? section.narrative
               .map(
-                item => `
+                sentence => `
+              <p class="narrative">${sentence}</p>
+            `,
+              )
+              .join('')
+          : section.items.length
+            ? section.items
+                .map(
+                  item => `
               <div class="item">
                 <div class="label">${item.label}</div>
                 <div class="value">${item.value}</div>
               </div>
             `,
-              )
-              .join('')
-          : '<p class="empty">Sin datos registrados</p>';
+                )
+                .join('')
+            : '<p class="empty">Sin datos registrados</p>';
         return `
           <section class="section">
             <h2>${section.title}</h2>
@@ -313,6 +414,7 @@ const QuestionnaireContent: React.FC = () => {
           .label { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #4b5563; margin-bottom: 4px; }
           .value { font-size: 15px; color: #111827; }
           .empty { font-size: 14px; color: #6b7280; font-style: italic; }
+          .narrative { font-size: 15px; color: #111827; line-height: 1.6; }
           footer { margin-top: 32px; font-size: 12px; color: #6b7280; }
         </style>
       </head>
@@ -575,7 +677,13 @@ const QuestionnaireContent: React.FC = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4 p-6">
-                        {section.items.length > 0 ? (
+                        {section.narrative && section.narrative.length > 0 ? (
+                          <div className="space-y-3 text-base leading-relaxed text-foreground">
+                            {section.narrative.map(sentence => (
+                              <p key={`${section.title}-${sentence}`}>{sentence}</p>
+                            ))}
+                          </div>
+                        ) : section.items.length > 0 ? (
                           <dl className="grid gap-4">
                             {section.items.map(item => (
                               <div
