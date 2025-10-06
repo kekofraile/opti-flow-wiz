@@ -22,7 +22,9 @@ export interface QuestionnaireData {
   // Ocular history
   ocular_dx?: string[];
   ocular_other?: string;
+  ocular_tx_history?: string;
   ocular_tx?: string[];
+  ocular_trauma_history?: string;
   ocular_trauma?: string[];
 
   // Family history

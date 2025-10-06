@@ -280,6 +280,15 @@ export const ReviewStep: React.FC = () => {
     'Algunos efectos visuales pueden ser transitorios; otros requieren valoración urgente si hay dolor ocular o pérdida visual súbita.',
   ];
 
+  const ocularTxList = (data.ocular_tx ?? []).filter(item => item !== 'Ninguno');
+  const ocularTraumaList = (data.ocular_trauma ?? []).filter(item => item !== 'Ninguno');
+  const ocularTxDetails =
+    data.ocular_tx_history === 'Sí' && ocularTxList.length ? ocularTxList.join(', ') : undefined;
+  const ocularTraumaDetails =
+    data.ocular_trauma_history === 'Sí' && ocularTraumaList.length
+      ? ocularTraumaList.join(', ')
+      : undefined;
+
   const sections = [
     {
       title: 'Motivo de consulta',
@@ -314,9 +323,13 @@ export const ReviewStep: React.FC = () => {
       step: 4,
       data: [
         { label: 'Enfermedades', value: data.ocular_dx?.join(', ') },
-        { label: 'Cirugías/Tratamientos', value: data.ocular_tx?.join(', ') },
-        { label: 'Traumas', value: data.ocular_trauma?.join(', ') },
-      ],
+        { label: 'Cirugías/Tratamientos', value: data.ocular_tx_history },
+        ocularTxDetails
+          ? { label: 'Cirugías/Tratamientos · Detalles', value: ocularTxDetails }
+          : null,
+        { label: 'Traumas', value: data.ocular_trauma_history },
+        ocularTraumaDetails ? { label: 'Traumas · Detalles', value: ocularTraumaDetails } : null,
+      ].filter(Boolean) as { label: string; value: string | undefined }[],
     },
     {
       title: 'Antecedentes familiares',
