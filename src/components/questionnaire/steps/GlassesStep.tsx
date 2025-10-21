@@ -44,9 +44,8 @@ export const GlassesStep: React.FC = () => {
             options={[
               'Lejos',
               'Cerca',
-              'Ordenador (intermedia)',
-              'Todo el tiempo',
-              'Solo en ocasiones',
+              'Ordenador y cerca',
+              'Para todas las distancias',
             ]}
             value={data.glasses_use}
             onChange={(value) => updateField('glasses_use', value)}

@@ -4,7 +4,10 @@ import { toast } from 'sonner';
 
 interface QuestionnaireContextType {
   data: Partial<QuestionnaireData>; // Consider using a more specific type if possible
-  updateField: (field: string, value: any) => void;
+  updateField: <K extends keyof QuestionnaireData>(
+    field: K,
+    value: QuestionnaireData[K],
+  ) => void;
   currentStep: number;
   setCurrentStep: (step: number) => void;
   totalSteps: number;
@@ -77,7 +80,7 @@ export const QuestionnaireProvider: React.FC<QuestionnaireProviderProps> = ({ ch
     }, 10000); // Check every 10 seconds
 
     return () => clearInterval(checkInactivity);
-  }, [lastActivity]);
+  }, [lastActivity, resetQuestionnaire]);
   
 
   return (

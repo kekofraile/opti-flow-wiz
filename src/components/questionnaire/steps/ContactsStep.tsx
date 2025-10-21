@@ -19,7 +19,7 @@ export const ContactsStep: React.FC = () => {
       </div>
 
       <ChoiceField
-        label="¿Usa lentes de contacto (lentillas)?"
+        label="¿Usa o ha usado lentes de contacto (lentillas)?"
         options={['Sí', 'No']}
         value={data.uses_contacts}
         onChange={(value) => {
@@ -47,7 +47,15 @@ export const ContactsStep: React.FC = () => {
               'Ya no las uso',
             ]}
             value={data.contacts_freq}
-            onChange={(value) => updateField('contacts_freq', value)}
+            onChange={(value) => {
+              updateField('contacts_freq', value);
+              if (value === 'Ya no las uso') {
+                cleanUpFields(updateField, [
+                  'contacts_hours',
+                  'contacts_comfort',
+                ]);
+              }
+            }}
             required
           />
 
@@ -66,21 +74,27 @@ export const ContactsStep: React.FC = () => {
             required
           />
 
-          <ChoiceField
-            label="Horas de uso al día"
-            options={['< 4 h', '4–8 h', '> 8 h']}
-            value={data.contacts_hours}
-            onChange={(value) => updateField('contacts_hours', value)}
-            required
-          />
+          {data.contacts_freq !== 'Ya no las uso' && (
+            <>
+              <ChoiceField
+                label="Horas de uso al día"
+                options={['< 4 h', '4–8 h', '> 8 h']}
+                value={data.contacts_hours}
+                onChange={(value) => updateField('contacts_hours', value)}
+                required
+              />
 
-          <ChoiceField
-            label="Comodidad"
-            options={['Muy buena', 'Buena', 'Regular', 'Mala']}
-            value={data.contacts_comfort}
-            onChange={(value) => updateField('contacts_comfort', value)}
-            required
-          />
+              <ChoiceField
+                label="Comodidad"
+                options={['Muy buena', 'Buena', 'Regular', 'Mala']}
+                value={data.contacts_comfort}
+                onChange={(value) =>
+                  updateField('contacts_comfort', value)
+                }
+                required
+              />
+            </>
+          )}
         </>
       )}
     </StepWrapper>
