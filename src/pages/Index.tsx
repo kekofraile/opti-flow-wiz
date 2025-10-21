@@ -413,17 +413,18 @@ const QuestionnaireContent: React.FC = () => {
           body {
             font-family: 'Inter', Arial, sans-serif;
             margin: 0;
-            padding: 32px;
+            padding: 28px;
             background: linear-gradient(180deg, var(--emerald-50) 0%, #f8fffb 100%);
             color: var(--slate-900);
           }
 
           .page {
-            max-width: 1080px;
+            width: 100%;
+            max-width: 150mm;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 28px;
+            gap: 20px;
           }
 
           header {
@@ -449,11 +450,11 @@ const QuestionnaireContent: React.FC = () => {
             background: rgba(255, 255, 255, 0.85);
             border: 2px solid rgba(16, 185, 129, 0.25);
             border-radius: 20px;
-            padding: 24px;
+            padding: 20px;
             box-shadow: 0 18px 40px rgba(4, 120, 87, 0.12);
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
           }
 
           .summary-card h2 {
@@ -466,8 +467,8 @@ const QuestionnaireContent: React.FC = () => {
 
           .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
           }
 
           .summary-item {
@@ -500,19 +501,19 @@ const QuestionnaireContent: React.FC = () => {
 
           .sections-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
           }
 
           .section-card {
             background: rgba(236, 253, 245, 0.95);
             border: 2px solid rgba(16, 185, 129, 0.3);
             border-radius: 22px;
-            padding: 22px 24px;
+            padding: 20px 22px;
             box-shadow: 0 20px 44px rgba(4, 120, 87, 0.15);
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 16px;
             page-break-inside: avoid;
           }
 
@@ -581,8 +582,12 @@ const QuestionnaireContent: React.FC = () => {
 
           @media print {
             body {
-              padding: 20mm;
+              padding: 10mm;
               background: var(--white);
+            }
+
+            .page {
+              max-width: 150mm;
             }
 
             .summary-card,
@@ -595,8 +600,14 @@ const QuestionnaireContent: React.FC = () => {
               box-shadow: none;
             }
 
+            .summary-grid {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 6mm;
+            }
+
             .sections-grid {
-              gap: 16px;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 6mm;
             }
           }
         </style>
