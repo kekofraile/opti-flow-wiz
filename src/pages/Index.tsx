@@ -352,29 +352,37 @@ const QuestionnaireContent: React.FC = () => {
     const rows = summarySections
       .map(section => {
         const items = section.narrative && section.narrative.length
-          ? section.narrative
-              .map(
-                sentence => `
-              <p class="narrative">${sentence}</p>
-            `,
-              )
-              .join('')
-          : section.items.length
-            ? section.items
+          ? `
+            <div class="narrative">
+              ${section.narrative
                 .map(
-                  item => `
-              <div class="item">
-                <div class="label">${item.label}</div>
-                <div class="value">${item.value}</div>
-              </div>
-            `,
+                  sentence => `
+                    <p>${sentence}</p>
+                  `,
                 )
-                .join('')
+                .join('')}
+            </div>
+          `
+          : section.items.length
+            ? `
+              <div class="items">
+                ${section.items
+                  .map(
+                    item => `
+                      <div class="item">
+                        <div class="label">${item.label}</div>
+                        <div class="value">${item.value}</div>
+                      </div>
+                    `,
+                  )
+                  .join('')}
+              </div>
+            `
             : '<p class="empty">Sin datos registrados</p>';
         return `
-          <section class="section">
+          <section class="section-card">
             <h2>${section.title}</h2>
-            <div class="items">${items}</div>
+            ${items}
           </section>
         `;
       })
@@ -386,29 +394,246 @@ const QuestionnaireContent: React.FC = () => {
         <meta charSet="utf-8" />
         <title>Resumen cuestionario</title>
         <style>
-          body { font-family: 'Inter', Arial, sans-serif; margin: 24px; color: #111827; }
-          h1 { font-size: 24px; margin-bottom: 8px; }
-          h2 { font-size: 18px; margin-top: 24px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #1f2937; }
-          .section { page-break-inside: avoid; }
-          .items { display: grid; gap: 12px; }
-          .item { border: 1px solid #d1d5db; border-radius: 10px; padding: 12px; background: #f9fafb; }
-          .label { font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #4b5563; margin-bottom: 4px; }
-          .value { font-size: 15px; color: #111827; }
-          .empty { font-size: 14px; color: #6b7280; font-style: italic; }
-          .narrative { font-size: 15px; color: #111827; line-height: 1.6; }
-          footer { margin-top: 32px; font-size: 12px; color: #6b7280; }
+          :root {
+            --emerald-50: #ecfdf5;
+            --emerald-100: #d1fae5;
+            --emerald-200: #a7f3d0;
+            --emerald-500: #10b981;
+            --emerald-600: #059669;
+            --slate-900: #0f172a;
+            --slate-700: #334155;
+            --slate-500: #64748b;
+            --white: #ffffff;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+
+          body {
+            font-family: 'Inter', Arial, sans-serif;
+            margin: 0;
+            padding: 32px;
+            background: linear-gradient(180deg, var(--emerald-50) 0%, #f8fffb 100%);
+            color: var(--slate-900);
+          }
+
+          .page {
+            max-width: 1080px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+          }
+
+          header {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+          }
+
+          h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--emerald-600);
+            margin: 0;
+          }
+
+          .intro {
+            font-size: 15px;
+            color: var(--slate-700);
+            margin: 0;
+          }
+
+          .summary-card {
+            background: rgba(255, 255, 255, 0.85);
+            border: 2px solid rgba(16, 185, 129, 0.25);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 18px 40px rgba(4, 120, 87, 0.12);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+          }
+
+          .summary-card h2 {
+            font-size: 18px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--emerald-600);
+            margin: 0;
+          }
+
+          .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+          }
+
+          .summary-item {
+            background: var(--white);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 10px 28px rgba(4, 120, 87, 0.1);
+          }
+
+          .summary-item .label {
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--slate-500);
+            margin-bottom: 6px;
+          }
+
+          .summary-item .value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--slate-900);
+          }
+
+          .summary-note {
+            font-size: 14px;
+            color: var(--slate-500);
+            margin: 0;
+          }
+
+          .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+          }
+
+          .section-card {
+            background: rgba(236, 253, 245, 0.95);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 22px;
+            padding: 22px 24px;
+            box-shadow: 0 20px 44px rgba(4, 120, 87, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            page-break-inside: avoid;
+          }
+
+          .section-card h2 {
+            font-size: 18px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--emerald-600);
+            margin: 0;
+          }
+
+          .items {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+          }
+
+          .item {
+            background: var(--white);
+            border: 1px solid rgba(16, 185, 129, 0.28);
+            border-radius: 16px;
+            padding: 16px 18px;
+            box-shadow: 0 14px 30px rgba(4, 120, 87, 0.12);
+          }
+
+          .label {
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--slate-500);
+            font-weight: 600;
+            margin-bottom: 8px;
+          }
+
+          .value {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--slate-900);
+          }
+
+          .narrative {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--slate-700);
+          }
+
+          .narrative p {
+            margin: 0;
+          }
+
+          .empty {
+            font-size: 14px;
+            font-style: italic;
+            color: var(--slate-500);
+          }
+
+          footer {
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--slate-500);
+            text-align: center;
+          }
+
+          @media print {
+            body {
+              padding: 20mm;
+              background: var(--white);
+            }
+
+            .summary-card,
+            .section-card {
+              box-shadow: none;
+            }
+
+            .item,
+            .summary-item {
+              box-shadow: none;
+            }
+
+            .sections-grid {
+              gap: 16px;
+            }
+          }
         </style>
       </head>
       <body>
-        <h1>Resumen del cuestionario</h1>
-        <p>Generado: ${generatedAt}</p>
-        ${rows}
-        <footer>
-          <p>Exportado desde Opti Flow Wiz.</p>
-        </footer>
+        <div class="page">
+          <header>
+            <h1>Resumen del cuestionario</h1>
+            <p class="intro">Información lista para incorporar a la historia clínica.</p>
+          </header>
+
+          <section class="summary-card">
+            <h2>Información general</h2>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <div class="label">Fecha de exportación</div>
+                <div class="value">${generatedAt}</div>
+              </div>
+              <div class="summary-item">
+                <div class="label">Campos completados</div>
+                <div class="value">${filledFieldCount}</div>
+              </div>
+            </div>
+            <p class="summary-note">Revise cada bloque para trasladar la información a la historia clínica.</p>
+          </section>
+
+          <div class="sections-grid">
+            ${rows}
+          </div>
+
+          <footer>
+            <p>Exportado desde Opti Flow Wiz.</p>
+          </footer>
+        </div>
       </body>
     </html>`;
-  }, [completionTimestamp, summarySections]);
+  }, [completionTimestamp, summarySections, filledFieldCount]);
 
   const handleDownloadJson = () => {
     const exportPayload = {
