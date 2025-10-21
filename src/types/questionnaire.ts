@@ -1,4 +1,8 @@
 export interface QuestionnaireData {
+  // Patient info
+  client_name?: string;
+  client_id?: string;
+
   // Reason
   reason_list: string[];
   symptoms_list?: string[];

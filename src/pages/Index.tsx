@@ -54,6 +54,8 @@ const QuestionnaireContent: React.FC = () => {
 
   const summarySections = useMemo(() => {
     const fieldLabels: Record<keyof QuestionnaireData | string, string> = {
+      client_name: 'Nombre del paciente',
+      client_id: 'Identificador / Nº cliente',
       lang: 'Idioma',
       reason_list: 'Motivos de consulta',
       symptoms_list: 'Síntomas asociados',
@@ -197,6 +199,11 @@ const QuestionnaireContent: React.FC = () => {
     };
 
     const categoryConfig: CategoryConfig[] = [
+      {
+        title: 'Identificación del paciente',
+        fields: ['client_name', 'client_id'],
+        alwaysVisible: true,
+      },
       {
         title: 'Motivo de la visita',
         fields: ['reason_list', 'symptoms_list', 'last_exam'],
