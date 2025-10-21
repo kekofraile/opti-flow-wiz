@@ -177,6 +177,15 @@ All colors MUST be HSL.
 }
 
 @media print {
+  html,
+  body {
+    width: 100%;
+  }
+
+  #root {
+    width: 100%;
+  }
+
   body {
     background: #fff !important;
     color: hsl(var(--foreground));
@@ -214,18 +223,21 @@ All colors MUST be HSL.
 
   .print-summary-container {
     display: grid !important;
-    gap: 1.5rem !important;
+    gap: 1.1rem !important;
   }
 
   .print-summary-grid {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 1.5rem !important;
+    gap: 1.1rem !important;
   }
 
   .print-summary-section {
     break-inside: avoid;
     page-break-inside: avoid;
+    background: #fff !important;
+    border-color: hsl(var(--primary) / 0.25) !important;
+    box-shadow: none !important;
   }
 
   .print-summary-content {
@@ -234,10 +246,12 @@ All colors MUST be HSL.
   }
 
   .print-summary-items {
-    gap: 1rem !important;
+    gap: 0.75rem !important;
   }
 
   .print-summary-item {
-    padding: 1rem !important;
+    padding: 0.75rem !important;
+    border-color: hsl(var(--primary) / 0.25) !important;
+    background: hsl(var(--background)) !important;
   }
 }

@@ -628,25 +628,25 @@ const QuestionnaireContent: React.FC = () => {
             </DialogHeader>
 
             <div className="flex-1 overflow-y-auto px-6 pb-6 print:overflow-visible print:px-6 print:pb-6">
-              <div className="grid gap-6 pr-2 print:pr-0 print-summary-container">
+              <div className="grid gap-6 pr-2 print:gap-4 print:pr-0 print-summary-container">
                 <Card className="border-primary/30 bg-primary/5 shadow-sm print-summary-section">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-xl font-semibold text-primary">
+                  <CardHeader className="pb-2 print:p-4 print:pb-2 print:pt-4">
+                    <CardTitle className="text-xl font-semibold text-primary print:text-lg">
                       Resumen del cuestionario
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="grid gap-2 text-sm text-muted-foreground">
-                    <p className="text-base text-foreground">
+                  <CardContent className="grid gap-2 text-sm text-muted-foreground print:p-4 print:pt-0 print:text-xs print:gap-1">
+                    <p className="text-base text-foreground print:text-sm">
                       Fecha de exportación:{' '}
                       {completionTimestamp
                         ? new Date(completionTimestamp).toLocaleString()
                         : new Date().toLocaleString()}
                     </p>
-                    <p className="text-base">
+                    <p className="text-base print:text-sm">
                       Campos completados:{' '}
                       <span className="font-semibold text-foreground">{filledFieldCount}</span>
                     </p>
-                    <p>
+                    <p className="print:text-sm">
                       Revise cada bloque para traspasar la información rápidamente a la historia clínica.
                     </p>
                   </CardContent>
@@ -656,36 +656,36 @@ const QuestionnaireContent: React.FC = () => {
                   {summarySections.map(section => (
                     <Card
                       key={section.title}
-                      className="border-2 border-primary/15 bg-card/90 shadow-lg transition hover:border-primary/40 print-summary-section"
+                      className="border-2 border-primary/15 bg-card/90 shadow-lg transition hover:border-primary/40 print-summary-section print:border print:border-primary/25 print:bg-white"
                     >
-                      <CardHeader className="border-b border-primary/10 bg-primary/5 pb-4">
-                        <CardTitle className="text-lg font-semibold uppercase tracking-wider text-primary">
+                      <CardHeader className="border-b border-primary/10 bg-primary/5 pb-4 print:p-4 print:pb-2 print:bg-white print:border-primary/20">
+                        <CardTitle className="text-lg font-semibold uppercase tracking-wider text-primary print:text-base">
                           {section.title}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-4 p-6 print-summary-content">
+                      <CardContent className="space-y-4 p-6 print:p-4 print:space-y-2 print-summary-content">
                         {section.narrative && section.narrative.length > 0 ? (
-                          <div className="space-y-3 text-base leading-relaxed text-foreground">
+                          <div className="space-y-3 text-base leading-relaxed text-foreground print:space-y-2 print:text-sm">
                             {section.narrative.map(sentence => (
                               <p key={`${section.title}-${sentence}`}>{sentence}</p>
                             ))}
                           </div>
                         ) : section.items.length > 0 ? (
-                          <dl className="grid gap-4 print-summary-items">
+                          <dl className="grid gap-4 print:gap-2 print-summary-items">
                             {section.items.map(item => (
                               <div
                                 key={`${section.title}-${item.label}`}
-                                className="rounded-lg border border-border/60 bg-background/80 p-4 shadow-sm print-summary-item"
+                                className="rounded-lg border border-border/60 bg-background/80 p-4 shadow-sm print:p-3 print-summary-item"
                               >
-                                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground print:text-[11px]">
                                   {item.label}
                                 </dt>
-                                <dd className="text-lg font-semibold text-foreground">{item.value}</dd>
+                                <dd className="text-lg font-semibold text-foreground print:text-sm">{item.value}</dd>
                               </div>
                             ))}
                           </dl>
                         ) : (
-                          <p className="text-sm italic text-muted-foreground">
+                          <p className="text-sm italic text-muted-foreground print:text-xs">
                             Sin datos registrados en esta sección.
                           </p>
                         )}
