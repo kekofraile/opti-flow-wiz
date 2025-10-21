@@ -71,18 +71,19 @@ export const ChoiceField: React.FC<ChoiceFieldProps> = ({
               type="button"
               onClick={() => handleSelect(option)}
               className={cn(
-                'touch-target flex items-center justify-between gap-3 px-6 py-4 rounded-xl border-2 transition-all',
-                'hover:shadow-md active:scale-[0.98]',
+                'group touch-target flex items-center justify-between gap-3 px-6 py-4 rounded-2xl border transition-all duration-200',
+                'backdrop-blur-xl bg-white/35 border-white/50 text-foreground shadow-[0_18px_45px_-22px_rgba(15,23,42,0.55)] hover:shadow-[0_26px_60px_-25px_rgba(15,23,42,0.65)] hover:bg-white/45 active:scale-[0.99]',
+                'dark:bg-white/10 dark:text-white/90 dark:border-white/15 dark:hover:bg-white/15',
                 isSelected
-                  ? 'border-primary bg-primary/10 shadow-md'
-                  : 'border-border bg-card hover:border-primary/50',
+                  ? 'border-primary/60 bg-gradient-to-br from-primary/55 via-primary/45 to-primary-glow/60 text-primary-foreground shadow-[0_30px_70px_-25px_rgba(34,197,94,0.6)]'
+                  : 'hover:border-primary/40',
                 isExclusive && 'font-medium'
               )}
             >
               <span className="text-left flex-1">{option}</span>
               {isSelected && (
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="w-4 h-4 text-primary-foreground" />
+                <div className="flex-shrink-0 w-7 h-7 rounded-full border border-white/70 bg-white/80 text-primary shadow-[0_10px_25px_-12px_rgba(34,197,94,0.6)] flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
+                  <Check className="w-4 h-4 text-primary" />
                 </div>
               )}
             </button>

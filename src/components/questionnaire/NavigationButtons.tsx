@@ -24,21 +24,22 @@ export const NavigationButtons: React.FC<NavigationButtonsProps> = ({
       <div className="container max-w-5xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           <Button
-            variant="outline"
+            variant="glass"
             size="lg"
             onClick={onBack}
             disabled={isFirstStep}
-            className="touch-target min-w-[120px]"
+            className="touch-target min-w-[120px] px-6 font-semibold"
           >
             <ChevronLeft className="w-5 h-5 mr-2" />
             Atrás
           </Button>
 
           <Button
+            variant="glassPrimary"
             size="lg"
             onClick={onNext}
             disabled={!canGoNext}
-            className="touch-target min-w-[120px] bg-gradient-to-r from-primary to-primary-glow"
+            className="touch-target min-w-[140px] px-8 font-semibold"
           >
             {isLastStep ? 'Enviar' : 'Siguiente'}
             {!isLastStep && <ChevronRight className="w-5 h-5 ml-2" />}

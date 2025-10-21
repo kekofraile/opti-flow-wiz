@@ -136,10 +136,10 @@ export const ReviewStep: React.FC = () => {
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <CardTitle className="text-lg">{section.title}</CardTitle>
               <Button
-                variant="ghost"
+                variant="glass"
                 size="sm"
                 onClick={() => setCurrentStep(section.step)}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 px-4"
               >
                 <Edit className="w-4 h-4" />
                 Editar
