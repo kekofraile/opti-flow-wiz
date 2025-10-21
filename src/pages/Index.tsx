@@ -419,11 +419,12 @@ const QuestionnaireContent: React.FC = () => {
           }
 
           .page {
-            max-width: 1080px;
+            width: 100%;
+            max-width: 170mm;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 28px;
+            gap: 24px;
           }
 
           header {
@@ -466,8 +467,8 @@ const QuestionnaireContent: React.FC = () => {
 
           .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
           }
 
           .summary-item {
@@ -500,8 +501,8 @@ const QuestionnaireContent: React.FC = () => {
 
           .sections-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
           }
 
           .section-card {
@@ -581,8 +582,12 @@ const QuestionnaireContent: React.FC = () => {
 
           @media print {
             body {
-              padding: 20mm;
+              padding: 12mm;
               background: var(--white);
+            }
+
+            .page {
+              max-width: 170mm;
             }
 
             .summary-card,
@@ -595,8 +600,13 @@ const QuestionnaireContent: React.FC = () => {
               box-shadow: none;
             }
 
+            .summary-grid {
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .sections-grid {
-              gap: 16px;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 8mm;
             }
           }
         </style>
