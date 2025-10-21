@@ -20,7 +20,7 @@ export const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   const isFirstStep = currentStep === 0;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg z-50 print:hidden">
       <div className="container max-w-5xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           <Button

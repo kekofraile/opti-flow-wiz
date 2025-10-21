@@ -580,7 +580,7 @@ const QuestionnaireContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted kiosk-mode">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-sm border-b border-border shadow-sm">
+      <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-sm border-b border-border shadow-sm print:hidden">
         <div className="container max-w-5xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
@@ -595,7 +595,7 @@ const QuestionnaireContent: React.FC = () => {
       </header>
 
       {/* Content */}
-      <main className="container max-w-5xl mx-auto px-6 py-8 pb-32">
+      <main className="container max-w-5xl mx-auto px-6 py-8 pb-32 print:hidden">
         <CurrentStepComponent />
       </main>
 
@@ -608,9 +608,9 @@ const QuestionnaireContent: React.FC = () => {
       />
 
       <Dialog open={showCompletionDialog} onOpenChange={setShowCompletionDialog}>
-        <DialogContent className="max-w-3xl sm:max-w-4xl overflow-hidden p-0">
-          <div className="flex max-h-[85vh] flex-col">
-            <DialogHeader className="px-6 pt-6">
+        <DialogContent className="max-w-3xl sm:max-w-4xl overflow-hidden p-0 print-dialog-content">
+          <div className="flex max-h-[85vh] flex-col print:block print:max-h-none">
+            <DialogHeader className="px-6 pt-6 print:px-0 print:pt-0 print:pb-4 print:border-b print:border-primary/20">
               <DialogTitle className="flex items-center gap-2 text-2xl">
                 <CheckCircle2 className="h-6 w-6 text-primary" />
                 Cuestionario guardado
@@ -620,55 +620,55 @@ const QuestionnaireContent: React.FC = () => {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <div className="grid gap-6 pr-2">
+            <div className="flex-1 overflow-y-auto px-6 pb-6 print:px-0 print:pb-0 print:overflow-visible">
+              <div className="grid gap-6 pr-2 print:gap-4 print:pr-0 print-summary-container">
                 <Card className="border-primary/30 bg-primary/5 shadow-sm">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-xl font-semibold text-primary">
+                  <CardHeader className="pb-2 print:pb-1 print:border-b print:border-primary/10">
+                    <CardTitle className="text-xl font-semibold text-primary print:text-lg">
                       Resumen del cuestionario
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="grid gap-2 text-sm text-muted-foreground">
-                    <p className="text-base text-foreground">
+                  <CardContent className="grid gap-2 text-sm text-muted-foreground print:gap-1 print:text-xs">
+                    <p className="text-base text-foreground print:text-sm">
                       Fecha de exportación:{' '}
                       {completionTimestamp
                         ? new Date(completionTimestamp).toLocaleString()
                         : new Date().toLocaleString()}
                     </p>
-                    <p className="text-base">
+                    <p className="text-base print:text-sm">
                       Campos completados:{' '}
                       <span className="font-semibold text-foreground">{filledFieldCount}</span>
                     </p>
-                    <p>
+                    <p className="print:text-sm">
                       Revise cada bloque para traspasar la información rápidamente a la historia clínica.
                     </p>
                   </CardContent>
                 </Card>
 
-                <div className="grid gap-5 lg:grid-cols-2">
+                <div className="grid gap-5 lg:grid-cols-2 print:grid-cols-2 print:gap-4 print-summary-grid">
                   {summarySections.map(section => (
                     <Card
                       key={section.title}
-                      className="border-2 border-primary/15 bg-card/90 shadow-lg transition hover:border-primary/40"
+                      className="border-2 border-primary/15 bg-card/90 shadow-lg transition hover:border-primary/40 print:shadow-none print:border print:[break-inside:avoid] print-summary-section"
                     >
-                      <CardHeader className="border-b border-primary/10 bg-primary/5 pb-4">
-                        <CardTitle className="text-lg font-semibold uppercase tracking-wider text-primary">
+                      <CardHeader className="border-b border-primary/10 bg-primary/5 pb-4 print:pb-3 print:border-primary/20">
+                        <CardTitle className="text-lg font-semibold uppercase tracking-wider text-primary print:text-base">
                           {section.title}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-4 p-6">
+                      <CardContent className="space-y-4 p-6 print:space-y-3 print:p-4 print-summary-content">
                         {section.narrative && section.narrative.length > 0 ? (
-                          <div className="space-y-3 text-base leading-relaxed text-foreground">
+                          <div className="space-y-2 text-base leading-relaxed text-foreground print:text-sm">
                             {section.narrative.map(sentence => (
                               <p key={`${section.title}-${sentence}`}>{sentence}</p>
                             ))}
                           </div>
                         ) : section.items.length > 0 ? (
-                          <dl className="grid gap-4">
+                          <dl className="grid gap-4 print:gap-3 print-summary-items">
                             {section.items.map(item => (
                               <div
                                 key={`${section.title}-${item.label}`}
-                                className="rounded-lg border border-border/60 bg-background/80 p-4 shadow-sm"
+                                className="rounded-lg border border-border/60 bg-background/80 p-4 shadow-sm print:p-3 print:border-primary/25 print:shadow-none print-summary-item"
                               >
                                 <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                                   {item.label}
@@ -689,7 +689,7 @@ const QuestionnaireContent: React.FC = () => {
               </div>
             </div>
 
-            <DialogFooter className="gap-2 border-t border-border bg-background px-6 py-4">
+            <DialogFooter className="gap-2 border-t border-border bg-background px-6 py-4 print:hidden">
               <Button onClick={handlePrint} variant="secondary" className="flex items-center gap-2">
                 <Printer className="h-4 w-4" />
                 Imprimir / Guardar PDF
