@@ -3,11 +3,10 @@ import { StepWrapper } from '../StepWrapper';
 import { ChoiceField } from '../ChoiceField';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { Contact } from 'lucide-react';
+import { cleanUpFields } from '@/lib/utils';
 
 export const ContactsStep: React.FC = () => {
   const { data, updateField } = useQuestionnaire();
-
-  const usesContacts = data.uses_contacts === 'Sí';
 
   return (
     <StepWrapper
@@ -23,11 +22,21 @@ export const ContactsStep: React.FC = () => {
         label="¿Usa lentes de contacto (lentillas)?"
         options={['Sí', 'No']}
         value={data.uses_contacts}
-        onChange={(value) => updateField('uses_contacts', value)}
+        onChange={(value) => {
+          updateField('uses_contacts', value);
+          if (value !== 'Sí') {
+            cleanUpFields(updateField, [
+              'contacts_freq',
+              'contacts_type',
+              'contacts_hours',
+              'contacts_comfort',
+            ]);
+          }
+        }}
         required
       />
 
-      {usesContacts && (
+      {data.uses_contacts === 'Sí' && (
         <>
           <ChoiceField
             label="Frecuencia de uso"

@@ -3,12 +3,10 @@ import { StepWrapper } from '../StepWrapper';
 import { ChoiceField } from '../ChoiceField';
 import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 import { Glasses } from 'lucide-react';
+import { cleanUpFields } from '@/lib/utils';
 
 export const GlassesStep: React.FC = () => {
   const { data, updateField } = useQuestionnaire();
-
-  const usesGlasses = data.uses_glasses === 'Sí';
-  const usesProgressives = data.progressives === 'Sí';
 
   return (
     <StepWrapper
@@ -24,11 +22,22 @@ export const GlassesStep: React.FC = () => {
         label="¿Usa gafas habitualmente?"
         options={['Sí', 'No']}
         value={data.uses_glasses}
-        onChange={(value) => updateField('uses_glasses', value)}
+        onChange={(value) => {
+          updateField('uses_glasses', value);
+          if (value !== 'Sí') {
+            cleanUpFields(updateField, [
+              'glasses_use',
+              'progressives',
+              'progressive_adapt',
+              'glasses_age',
+              'glasses_satisfaction',
+            ]);
+          }
+        }}
         required
       />
 
-      {usesGlasses && (
+      {data.uses_glasses === 'Sí' && (
         <>
           <ChoiceField
             label="¿Para qué las usa principalmente?"
@@ -49,11 +58,16 @@ export const GlassesStep: React.FC = () => {
             label="¿Usa lentes progresivas (multifocales)?"
             options={['Sí', 'No']}
             value={data.progressives}
-            onChange={(value) => updateField('progressives', value)}
+            onChange={(value) => {
+              updateField('progressives', value);
+              if (value !== 'Sí') {
+                updateField('progressive_adapt', undefined);
+              }
+            }}
             required
           />
 
-          {usesProgressives && (
+          {data.progressives === 'Sí' && (
             <ChoiceField
               label="¿Cómo ha sido su adaptación a las progresivas?"
               options={['Muy buena', 'Buena', 'Regular', 'Mala']}

@@ -8,9 +8,6 @@ import { HeartPulse } from 'lucide-react';
 export const GeneralHealthStep: React.FC = () => {
   const { data, updateField } = useQuestionnaire();
 
-  const hasSystemic = data.systemic && !data.systemic.includes('Ninguna');
-  const hasAllergies = data.allergies && !data.allergies.includes('Ninguna');
-
   return (
     <StepWrapper
       title="Salud general"
@@ -38,7 +35,7 @@ export const GeneralHealthStep: React.FC = () => {
         exclusiveOptions={['Ninguna']}
       />
 
-      {hasSystemic && (
+      {data.systemic && !data.systemic.includes('Ninguna') && (
         <TextField
           label="Otra condición médica (si aplica)"
           value={data.systemic_other}
@@ -61,7 +58,7 @@ export const GeneralHealthStep: React.FC = () => {
         exclusiveOptions={['Ninguna']}
       />
 
-      {hasAllergies && (
+      {data.allergies && !data.allergies.includes('Ninguna') && (
         <TextField
           label="Otra alergia (si aplica)"
           value={data.allergy_other}

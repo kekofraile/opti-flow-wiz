@@ -8,8 +8,6 @@ import { Users } from 'lucide-react';
 export const FamilyHistoryStep: React.FC = () => {
   const { data, updateField } = useQuestionnaire();
 
-  const hasFamilyDx = data.family_dx && !data.family_dx.includes('Ninguno');
-
   return (
     <StepWrapper
       title="Antecedentes familiares oculares"
@@ -36,7 +34,7 @@ export const FamilyHistoryStep: React.FC = () => {
         exclusiveOptions={['Ninguno']}
       />
 
-      {hasFamilyDx && (
+      {data.family_dx && !data.family_dx.includes('Ninguno') && (
         <TextField
           label="Otra enfermedad ocular familiar (si aplica)"
           value={data.family_other}

@@ -6,8 +6,6 @@ import { useQuestionnaire } from '@/contexts/QuestionnaireContext';
 export const ReasonStep: React.FC = () => {
   const { data, updateField } = useQuestionnaire();
 
-  const showSymptoms = data.reason_list?.includes('Molestias o problemas de visión');
-
   return (
     <StepWrapper
       title="Motivo de su visita"
@@ -27,7 +25,7 @@ export const ReasonStep: React.FC = () => {
         required
       />
 
-      {showSymptoms && (
+      {data.reason_list?.includes('Molestias o problemas de visión') && (
         <ChoiceField
           label="¿Qué síntomas presenta?"
           options={[

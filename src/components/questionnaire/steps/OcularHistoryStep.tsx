@@ -8,30 +8,17 @@ import { Activity } from 'lucide-react';
 export const OcularHistoryStep: React.FC = () => {
   const { data, updateField } = useQuestionnaire();
 
-  const hasOcularDx = data.ocular_dx && !data.ocular_dx.includes('Ninguno');
-  const ocularTxValues = (data.ocular_tx ?? []).filter(item => item !== 'Ninguno');
-  const ocularTraumaValues = (data.ocular_trauma ?? []).filter(item => item !== 'Ninguno');
-  const hasOcularTxHistory =
-    data.ocular_tx_history === 'Sí' || (!data.ocular_tx_history && ocularTxValues.length > 0);
-  const hasOcularTraumaHistory =
-    data.ocular_trauma_history === 'Sí' ||
-    (!data.ocular_trauma_history && ocularTraumaValues.length > 0);
-
   const handleOcularTxHistoryChange = (value: string) => {
     updateField('ocular_tx_history', value);
     if (value !== 'Sí') {
-      updateField('ocular_tx', []);
-    } else if (data.ocular_tx && data.ocular_tx.includes('Ninguno')) {
-      updateField('ocular_tx', ocularTxValues);
+      updateField('ocular_tx', undefined);
     }
   };
 
   const handleOcularTraumaHistoryChange = (value: string) => {
     updateField('ocular_trauma_history', value);
     if (value !== 'Sí') {
-      updateField('ocular_trauma', []);
-    } else if (data.ocular_trauma && data.ocular_trauma.includes('Ninguno')) {
-      updateField('ocular_trauma', ocularTraumaValues);
+      updateField('ocular_trauma', undefined);
     }
   };
 
@@ -65,7 +52,7 @@ export const OcularHistoryStep: React.FC = () => {
         exclusiveOptions={['Ninguno']}
       />
 
-      {hasOcularDx && (
+      {data.ocular_dx && !data.ocular_dx.includes('Ninguno') && (
         <TextField
           label="Otra enfermedad ocular (si aplica)"
           value={data.ocular_other}
@@ -82,7 +69,7 @@ export const OcularHistoryStep: React.FC = () => {
         required
       />
 
-      {hasOcularTxHistory && (
+      {data.ocular_tx_history === 'Sí' && (
         <ChoiceField
           label="¿Qué procedimientos se realizaron?"
           options={[
@@ -93,7 +80,7 @@ export const OcularHistoryStep: React.FC = () => {
             'Inyecciones intraoculares',
             'Otros procedimientos/terapias oculares',
           ]}
-          value={ocularTxValues}
+          value={data.ocular_tx}
           onChange={(value) => updateField('ocular_tx', value)}
           multiple
           required
@@ -108,7 +95,7 @@ export const OcularHistoryStep: React.FC = () => {
         required
       />
 
-      {hasOcularTraumaHistory && (
+      {data.ocular_trauma_history === 'Sí' && (
         <ChoiceField
           label="¿Qué tipo de trauma ocurrió?"
           options={[
@@ -118,7 +105,7 @@ export const OcularHistoryStep: React.FC = () => {
             'Cuerpo extraño grave',
             'Otro trauma ocular relevante',
           ]}
-          value={ocularTraumaValues}
+          value={data.ocular_trauma}
           onChange={(value) => updateField('ocular_trauma', value)}
           multiple
           required
