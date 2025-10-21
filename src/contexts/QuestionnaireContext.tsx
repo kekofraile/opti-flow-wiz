@@ -36,6 +36,11 @@ export const QuestionnaireProvider: React.FC<QuestionnaireProviderProps> = ({ ch
   const [currentStep, setCurrentStep] = useState(0);
   const [lastActivity, setLastActivity] = useState(Date.now());
 
+  // Update last activity timestamp
+  const updateActivity = useCallback(() => {
+    setLastActivity(Date.now());
+  }, []);
+
   // Auto-save to localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -47,21 +52,16 @@ export const QuestionnaireProvider: React.FC<QuestionnaireProviderProps> = ({ ch
       setData(prev => ({ ...prev, [field]: value }));
       updateActivity();
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [updateActivity],
   );
-
-  // Update last activity
-  const updateActivity = useCallback(() => {
-    setLastActivity(Date.now());
-  }, []);
 
   // Inactivity monitor
   const resetQuestionnaire = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setData({});
     setCurrentStep(0);
-  }, []);
+    updateActivity();
+  }, [updateActivity]);
 
   useEffect(() => {
     const checkInactivity = setInterval(() => {

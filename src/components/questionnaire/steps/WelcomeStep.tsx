@@ -4,9 +4,19 @@ import { Eye } from 'lucide-react';
 export const WelcomeStep: React.FC = () => {
   return (
     <StepWrapper
+      watermark={false}
       title="Bienvenido/a a Todo Óptica"
       subtitle="Complete este cuestionario para ayudarnos a ofrecerle el mejor servicio"
     >
+      {/* Brand logo */}
+      <div className="flex justify-center mb-6">
+        <img
+          src="/logo-todo-optica.svg"
+          alt="Todo Óptica"
+          className="h-14 md:h-16 w-auto"
+        />
+      </div>
+
       <div className="flex justify-center mb-8">
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-lg">
           <Eye className="w-10 h-10 text-primary-foreground" />
