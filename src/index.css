@@ -224,6 +224,8 @@ All colors MUST be HSL.
   .print-summary-container {
     display: grid !important;
     gap: 1.1rem !important;
+    max-width: 170mm !important;
+    margin: 0 auto !important;
   }
 
   .print-summary-grid {
