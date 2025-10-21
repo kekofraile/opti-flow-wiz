@@ -18,7 +18,12 @@ Changes made via Lovable will be committed automatically to this repo.
 
 If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Requirements:
+
+- Node.js >= 20 (recommended 20.18.0)
+- npm (bundled with Node)
+
+Tip: use nvm to install/manage Node: [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 Follow these steps:
 
@@ -34,6 +39,17 @@ npm i
 
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
+
+### Production build
+
+```
+npm run build
+```
+
+## Project notes
+
+- The questionnaire medication section only asks a single yes/no question about systemic treatments with potential ocular impact. It does not ask for specific drugs or details.
+- The previous auto-generated "Pruebas y actuaciones recomendadas" (recommendations) module has been removed from the app and codebase.
 ```
 
 **Edit a file directly in GitHub**

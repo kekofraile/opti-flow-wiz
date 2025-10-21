@@ -536,6 +536,12 @@ const QuestionnaireContent: React.FC = () => {
           return false;
         }
         break;
+      case 7: // Medication (tratamientos sistémicos)
+        if (!data.medications_any) {
+          toast.error('Por favor indique si sigue tratamiento sistémico con posible impacto ocular');
+          return false;
+        }
+        break;
       case 9: // Review
         if (!data.final_consent) {
           toast.error('Debe confirmar que la información es correcta');
