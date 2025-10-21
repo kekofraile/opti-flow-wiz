@@ -419,7 +419,7 @@ const QuestionnaireContent: React.FC = () => {
           }
 
           .page {
-            width: 100%;
+            width: 150mm;
             max-width: 150mm;
             margin: 0 auto;
             display: flex;
@@ -587,6 +587,7 @@ const QuestionnaireContent: React.FC = () => {
             }
 
             .page {
+              width: 150mm;
               max-width: 150mm;
             }
 
@@ -864,7 +865,7 @@ const QuestionnaireContent: React.FC = () => {
             </DialogHeader>
 
             <div className="flex-1 overflow-y-auto px-6 pb-6 print:overflow-visible print:px-6 print:pb-6">
-              <div className="grid gap-6 pr-2 print:gap-4 print:pr-0 print-summary-container">
+              <div className="grid w-full max-w-[150mm] gap-6 pr-2 print:gap-4 print:pr-0 print-summary-container mx-auto">
                 <Card className="border-primary/30 bg-primary/5 shadow-sm print-summary-section">
                   <CardHeader className="pb-2 print:p-4 print:pb-2 print:pt-4">
                     <CardTitle className="text-xl font-semibold text-primary print:text-lg">
@@ -888,7 +889,7 @@ const QuestionnaireContent: React.FC = () => {
                   </CardContent>
                 </Card>
 
-                <div className="grid gap-5 lg:grid-cols-2 print-summary-grid">
+                <div className="grid grid-cols-2 gap-5 print-summary-grid">
                   {summarySections.map(section => (
                     <Card
                       key={section.title}
