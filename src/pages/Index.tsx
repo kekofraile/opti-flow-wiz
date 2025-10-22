@@ -12,7 +12,7 @@ import { GeneralHealthStep } from '@/components/questionnaire/steps/GeneralHealt
 import { HabitsStep } from '@/components/questionnaire/steps/HabitsStep';
 import { MedicationStep } from '@/components/questionnaire/steps/MedicationStep';
 import { ReviewStep } from '@/components/questionnaire/steps/ReviewStep';
-import { CheckCircle2, Download, FileText, Printer, Save } from 'lucide-react';
+import { CheckCircle2, Download, FileText, Printer, RotateCcw, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -51,6 +51,17 @@ const QuestionnaireContent: React.FC = () => {
   const CurrentStepComponent = steps[currentStep];
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [completionTimestamp, setCompletionTimestamp] = useState<string | null>(null);
+  const hasStoredResponses = useMemo(() => {
+    return Object.values(data).some(value => {
+      if (value === undefined || value === null) return false;
+      if (typeof value === 'string') return value.trim().length > 0;
+      if (typeof value === 'number') return true;
+      if (typeof value === 'boolean') return true;
+      if (Array.isArray(value)) return value.length > 0;
+      if (typeof value === 'object') return Object.keys(value as Record<string, unknown>).length > 0;
+      return false;
+    });
+  }, [data]);
 
   const summarySections = useMemo(() => {
     const fieldLabels: Record<keyof QuestionnaireData | string, string> = {
@@ -819,17 +830,39 @@ const QuestionnaireContent: React.FC = () => {
     }
   };
 
+  const handleReset = () => {
+    const confirmation = window.confirm(
+      'Esto borrará las respuestas guardadas y reiniciará el cuestionario. ¿Desea continuar?',
+    );
+    if (!confirmation) return;
+
+    resetQuestionnaire();
+    toast.success('Respuestas anteriores borradas');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted kiosk-mode">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-sm border-b border-border shadow-sm print:hidden">
         <div className="container max-w-5xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
             <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
               Todo Óptica
             </h1>
-            <div className="text-sm text-muted-foreground">
-              Paso {currentStep + 1} de {totalSteps}
+            <div className="flex items-center gap-3">
+              <div className="text-sm text-muted-foreground">
+                Paso {currentStep + 1} de {totalSteps}
+              </div>
+              <Button
+                size="sm"
+                variant="default"
+                className="gap-2 shadow-sm hover:shadow-md transition-shadow"
+                onClick={handleReset}
+                disabled={!hasStoredResponses && currentStep === 0}
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reiniciar cuestionario
+              </Button>
             </div>
           </div>
           <ProgressBar />
