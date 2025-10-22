@@ -358,8 +358,8 @@ const QuestionnaireContent: React.FC = () => {
 
   const buildPrintableHtml = useMemo(() => {
     const generatedAt = completionTimestamp
-      ? new Date(completionTimestamp).toLocaleString()
-      : new Date().toLocaleString();
+      ? new Date(completionTimestamp).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+      : new Date().toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
     
     // Filter out sections with no data
     const sectionsWithData = summarySections.filter(section => {
@@ -374,11 +374,7 @@ const QuestionnaireContent: React.FC = () => {
           ? `
             <div class="narrative">
               ${section.narrative
-                .map(
-                  sentence => `
-                    <p>${sentence}</p>
-                  `,
-                )
+                .map(sentence => `<p>${sentence}</p>`)
                 .join('')}
             </div>
           `
@@ -386,15 +382,8 @@ const QuestionnaireContent: React.FC = () => {
             ? `
               <div class="items">
                 ${section.items
-                  .map(
-                    item => `
-                      <div class="item">
-                        <span class="label">${item.label}:</span>
-                        <span class="value">${item.value}</span>
-                      </div>
-                    `,
-                  )
-                  .join('')}
+                  .map(item => `<strong>${item.label}:</strong> ${item.value}`)
+                  .join('; ')}.
               </div>
             `
             : '';
@@ -413,189 +402,147 @@ const QuestionnaireContent: React.FC = () => {
         <meta charSet="utf-8" />
         <title>Resumen cuestionario</title>
         <style>
-          :root {
-            --emerald-600: #059669;
-            --slate-900: #0f172a;
-            --slate-700: #334155;
-            --slate-500: #64748b;
-            --white: #ffffff;
-          }
-
           * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+
+          @page {
+            size: A4;
+            margin: 10mm;
           }
 
           body {
-            font-family: 'Inter', Arial, sans-serif;
-            margin: 0;
-            padding: 8mm;
-            background: var(--white);
-            color: var(--slate-900);
-            font-size: 9pt;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: white;
+            color: hsl(215 25% 27%);
+            font-size: 7.5pt;
+            line-height: 1.3;
+            padding: 4mm;
           }
 
           .page {
             width: 100%;
-            max-width: 190mm;
-            margin: 0 auto;
+            max-width: 100%;
           }
 
           header {
-            margin-bottom: 6mm;
-            border-bottom: 1px solid rgba(16, 185, 129, 0.3);
-            padding-bottom: 3mm;
+            margin-bottom: 2mm;
+            padding-bottom: 1.5mm;
+            border-bottom: 1pt solid hsl(142 71% 45%);
+            text-align: center;
           }
 
           h1 {
-            font-size: 16pt;
+            font-size: 13pt;
             font-weight: 700;
-            color: var(--emerald-600);
-            margin: 0 0 2mm 0;
+            color: hsl(142 71% 45%);
+            margin-bottom: 0.5mm;
           }
 
           .intro {
-            font-size: 9pt;
-            color: var(--slate-700);
-            margin: 0;
+            font-size: 7pt;
+            color: hsl(215 15% 50%);
+            display: inline;
           }
 
           .summary-card {
-            background: rgba(236, 253, 245, 0.3);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 4mm;
-            padding: 3mm;
-            margin-bottom: 4mm;
+            background: hsl(210 20% 98%);
+            border: 0.5pt solid hsl(142 71% 45% / 0.3);
+            border-radius: 2mm;
+            padding: 1.5mm;
+            margin-bottom: 2mm;
+            font-size: 7pt;
           }
 
           .summary-card h2 {
-            font-size: 10pt;
-            font-weight: 600;
-            color: var(--emerald-600);
-            margin: 0 0 2mm 0;
+            display: none;
           }
 
           .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 2mm;
+            display: flex;
+            gap: 3mm;
+            justify-content: center;
           }
 
           .summary-item {
-            background: var(--white);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 2mm;
-            padding: 2mm;
+            display: inline;
           }
 
           .summary-item .label {
-            font-size: 8pt;
-            text-transform: uppercase;
-            color: var(--slate-500);
-            margin-bottom: 1mm;
             font-weight: 600;
+            color: hsl(215 25% 27%);
           }
 
           .summary-item .value {
-            font-size: 10pt;
-            font-weight: 600;
-            color: var(--slate-900);
-          }
-
-          .summary-note {
-            font-size: 8pt;
-            color: var(--slate-500);
-            margin: 2mm 0 0 0;
-            font-style: italic;
+            font-weight: 500;
+            color: hsl(215 25% 27%);
           }
 
           .sections-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 3mm;
-          }
-
-          .section-card {
-            background: rgba(236, 253, 245, 0.2);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            border-radius: 3mm;
-            padding: 3mm;
-            page-break-inside: avoid;
-          }
-
-          .section-card h2 {
-            font-size: 10pt;
-            font-weight: 600;
-            color: var(--emerald-600);
-            margin: 0 0 2mm 0;
-            text-transform: uppercase;
-          }
-
-          .items {
-            display: flex;
-            flex-direction: column;
             gap: 1.5mm;
           }
 
-          .item {
-            background: var(--white);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+          .section-card {
+            background: hsl(210 20% 98%);
+            border: 0.5pt solid hsl(142 71% 45% / 0.25);
             border-radius: 2mm;
-            padding: 2mm 2.5mm;
-            display: flex;
-            gap: 1mm;
-            align-items: baseline;
+            padding: 1.5mm;
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
 
-          .label {
-            font-size: 8pt;
-            color: var(--slate-500);
+          .section-card h2 {
+            font-size: 8.5pt;
             font-weight: 600;
-            flex-shrink: 0;
+            color: hsl(142 71% 45%);
+            margin-bottom: 1mm;
           }
 
-          .value {
-            font-size: 9pt;
-            font-weight: 500;
-            color: var(--slate-900);
+          .items {
+            font-size: 7.5pt;
+            line-height: 1.4;
+            color: hsl(215 25% 27%);
+          }
+
+          .items strong {
+            font-weight: 600;
+            color: hsl(215 25% 27%);
           }
 
           .narrative {
             display: flex;
             flex-direction: column;
-            gap: 2mm;
-            font-size: 9pt;
-            line-height: 1.4;
-            color: var(--slate-700);
+            gap: 1mm;
+            font-size: 7.5pt;
+            line-height: 1.35;
+            color: hsl(215 25% 27%);
           }
 
           .narrative p {
             margin: 0;
-            padding: 2mm;
-            background: var(--white);
-            border-radius: 2mm;
+            padding: 1mm;
+            background: white;
+            border-radius: 1.5mm;
           }
 
           footer {
-            margin-top: 4mm;
-            padding-top: 2mm;
-            border-top: 1px solid rgba(16, 185, 129, 0.3);
-            font-size: 7pt;
-            color: var(--slate-500);
+            margin-top: 2mm;
+            padding-top: 1mm;
+            border-top: 0.5pt solid hsl(142 71% 45% / 0.3);
+            font-size: 6pt;
+            color: hsl(215 15% 50%);
             text-align: center;
           }
 
           @media print {
-            @page {
-              size: A4;
-              margin: 10mm;
-            }
-
             body {
               padding: 0;
-            }
-
-            .page {
-              max-width: 100%;
+              print-color-adjust: exact;
+              -webkit-print-color-adjust: exact;
             }
           }
         </style>
@@ -604,22 +551,19 @@ const QuestionnaireContent: React.FC = () => {
         <div class="page">
           <header>
             <h1>Resumen del cuestionario</h1>
-            <p class="intro">Información lista para incorporar a la historia clínica.</p>
           </header>
 
           <section class="summary-card">
-            <h2>Información general</h2>
             <div class="summary-grid">
               <div class="summary-item">
-                <div class="label">Fecha</div>
-                <div class="value">${generatedAt}</div>
+                <span class="label">Fecha:</span>
+                <span class="value">${generatedAt}</span>
               </div>
               <div class="summary-item">
-                <div class="label">Campos</div>
-                <div class="value">${filledFieldCount}</div>
+                <span class="label">Campos completados:</span>
+                <span class="value">${filledFieldCount}</span>
               </div>
             </div>
-            <p class="summary-note">Revise cada bloque para trasladar a la historia clínica.</p>
           </section>
 
           <div class="sections-grid">
