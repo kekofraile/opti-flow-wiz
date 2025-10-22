@@ -12,7 +12,7 @@ import { GeneralHealthStep } from '@/components/questionnaire/steps/GeneralHealt
 import { HabitsStep } from '@/components/questionnaire/steps/HabitsStep';
 import { MedicationStep } from '@/components/questionnaire/steps/MedicationStep';
 import { ReviewStep } from '@/components/questionnaire/steps/ReviewStep';
-import { CheckCircle2, Download, FileText, Printer, RotateCcw, Save } from 'lucide-react';
+import { CheckCircle2, Download, FileText, Printer, Save, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
