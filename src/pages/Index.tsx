@@ -360,7 +360,15 @@ const QuestionnaireContent: React.FC = () => {
     const generatedAt = completionTimestamp
       ? new Date(completionTimestamp).toLocaleString()
       : new Date().toLocaleString();
-    const rows = summarySections
+    
+    // Filter out sections with no data
+    const sectionsWithData = summarySections.filter(section => {
+      if (section.narrative && section.narrative.length) return true;
+      if (section.items && section.items.length) return true;
+      return false;
+    });
+
+    const rows = sectionsWithData
       .map(section => {
         const items = section.narrative && section.narrative.length
           ? `
@@ -381,15 +389,15 @@ const QuestionnaireContent: React.FC = () => {
                   .map(
                     item => `
                       <div class="item">
-                        <div class="label">${item.label}</div>
-                        <div class="value">${item.value}</div>
+                        <span class="label">${item.label}:</span>
+                        <span class="value">${item.value}</span>
                       </div>
                     `,
                   )
                   .join('')}
               </div>
             `
-            : '<p class="empty">Sin datos registrados</p>';
+            : '';
         return `
           <section class="section-card">
             <h2>${section.title}</h2>
@@ -406,10 +414,6 @@ const QuestionnaireContent: React.FC = () => {
         <title>Resumen cuestionario</title>
         <style>
           :root {
-            --emerald-50: #ecfdf5;
-            --emerald-100: #d1fae5;
-            --emerald-200: #a7f3d0;
-            --emerald-500: #10b981;
             --emerald-600: #059669;
             --slate-900: #0f172a;
             --slate-700: #334155;
@@ -424,200 +428,174 @@ const QuestionnaireContent: React.FC = () => {
           body {
             font-family: 'Inter', Arial, sans-serif;
             margin: 0;
-            padding: 32px;
-            background: linear-gradient(180deg, var(--emerald-50) 0%, #f8fffb 100%);
+            padding: 8mm;
+            background: var(--white);
             color: var(--slate-900);
+            font-size: 9pt;
           }
 
           .page {
             width: 100%;
-            max-width: 170mm;
+            max-width: 190mm;
             margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
           }
 
           header {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            margin-bottom: 6mm;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+            padding-bottom: 3mm;
           }
 
           h1 {
-            font-size: 28px;
+            font-size: 16pt;
             font-weight: 700;
             color: var(--emerald-600);
-            margin: 0;
+            margin: 0 0 2mm 0;
           }
 
           .intro {
-            font-size: 15px;
+            font-size: 9pt;
             color: var(--slate-700);
             margin: 0;
           }
 
           .summary-card {
-            background: rgba(255, 255, 255, 0.85);
-            border: 2px solid rgba(16, 185, 129, 0.25);
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 18px 40px rgba(4, 120, 87, 0.12);
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
+            background: rgba(236, 253, 245, 0.3);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 4mm;
+            padding: 3mm;
+            margin-bottom: 4mm;
           }
 
           .summary-card h2 {
-            font-size: 18px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+            font-size: 10pt;
+            font-weight: 600;
             color: var(--emerald-600);
-            margin: 0;
+            margin: 0 0 2mm 0;
           }
 
           .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 14px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2mm;
           }
 
           .summary-item {
             background: var(--white);
             border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 10px 28px rgba(4, 120, 87, 0.1);
+            border-radius: 2mm;
+            padding: 2mm;
           }
 
           .summary-item .label {
-            font-size: 12px;
-            letter-spacing: 0.12em;
+            font-size: 8pt;
             text-transform: uppercase;
             color: var(--slate-500);
-            margin-bottom: 6px;
+            margin-bottom: 1mm;
+            font-weight: 600;
           }
 
           .summary-item .value {
-            font-size: 16px;
+            font-size: 10pt;
             font-weight: 600;
             color: var(--slate-900);
           }
 
           .summary-note {
-            font-size: 14px;
+            font-size: 8pt;
             color: var(--slate-500);
-            margin: 0;
+            margin: 2mm 0 0 0;
+            font-style: italic;
           }
 
           .sections-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3mm;
           }
 
           .section-card {
-            background: rgba(236, 253, 245, 0.95);
-            border: 2px solid rgba(16, 185, 129, 0.3);
-            border-radius: 22px;
-            padding: 22px 24px;
-            box-shadow: 0 20px 44px rgba(4, 120, 87, 0.15);
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
+            background: rgba(236, 253, 245, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 3mm;
+            padding: 3mm;
             page-break-inside: avoid;
           }
 
           .section-card h2 {
-            font-size: 18px;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
+            font-size: 10pt;
+            font-weight: 600;
             color: var(--emerald-600);
-            margin: 0;
+            margin: 0 0 2mm 0;
+            text-transform: uppercase;
           }
 
           .items {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 1.5mm;
           }
 
           .item {
             background: var(--white);
-            border: 1px solid rgba(16, 185, 129, 0.28);
-            border-radius: 16px;
-            padding: 16px 18px;
-            box-shadow: 0 14px 30px rgba(4, 120, 87, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 2mm;
+            padding: 2mm 2.5mm;
+            display: flex;
+            gap: 1mm;
+            align-items: baseline;
           }
 
           .label {
-            font-size: 12px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
+            font-size: 8pt;
             color: var(--slate-500);
             font-weight: 600;
-            margin-bottom: 8px;
+            flex-shrink: 0;
           }
 
           .value {
-            font-size: 17px;
-            font-weight: 600;
+            font-size: 9pt;
+            font-weight: 500;
             color: var(--slate-900);
           }
 
           .narrative {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            font-size: 15px;
-            line-height: 1.6;
+            gap: 2mm;
+            font-size: 9pt;
+            line-height: 1.4;
             color: var(--slate-700);
           }
 
           .narrative p {
             margin: 0;
-          }
-
-          .empty {
-            font-size: 14px;
-            font-style: italic;
-            color: var(--slate-500);
+            padding: 2mm;
+            background: var(--white);
+            border-radius: 2mm;
           }
 
           footer {
-            margin-top: 16px;
-            font-size: 12px;
+            margin-top: 4mm;
+            padding-top: 2mm;
+            border-top: 1px solid rgba(16, 185, 129, 0.3);
+            font-size: 7pt;
             color: var(--slate-500);
             text-align: center;
           }
 
           @media print {
+            @page {
+              size: A4;
+              margin: 10mm;
+            }
+
             body {
-              padding: 12mm;
-              background: var(--white);
+              padding: 0;
             }
 
             .page {
-              max-width: 170mm;
-            }
-
-            .summary-card,
-            .section-card {
-              box-shadow: none;
-            }
-
-            .item,
-            .summary-item {
-              box-shadow: none;
-            }
-
-            .summary-grid {
-              grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .sections-grid {
-              grid-template-columns: repeat(2, minmax(0, 1fr));
-              gap: 8mm;
+              max-width: 100%;
             }
           }
         </style>
@@ -633,15 +611,15 @@ const QuestionnaireContent: React.FC = () => {
             <h2>Información general</h2>
             <div class="summary-grid">
               <div class="summary-item">
-                <div class="label">Fecha de exportación</div>
+                <div class="label">Fecha</div>
                 <div class="value">${generatedAt}</div>
               </div>
               <div class="summary-item">
-                <div class="label">Campos completados</div>
+                <div class="label">Campos</div>
                 <div class="value">${filledFieldCount}</div>
               </div>
             </div>
-            <p class="summary-note">Revise cada bloque para trasladar la información a la historia clínica.</p>
+            <p class="summary-note">Revise cada bloque para trasladar a la historia clínica.</p>
           </section>
 
           <div class="sections-grid">
@@ -649,7 +627,7 @@ const QuestionnaireContent: React.FC = () => {
           </div>
 
           <footer>
-            <p>Exportado desde Opti Flow Wiz.</p>
+            <p>Exportado desde Opti Flow Wiz</p>
           </footer>
         </div>
       </body>
