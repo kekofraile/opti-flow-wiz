@@ -20,7 +20,7 @@ export const ReasonStep: React.FC = () => {
           'Interés en lentes de contacto',
         ]}
         value={data.reason_list}
-        onChange={(value) => updateField('reason_list', value)}
+        onChange={(value) => updateField('reason_list', value as string[])}
         multiple
         required
       />
@@ -40,7 +40,7 @@ export const ReasonStep: React.FC = () => {
             'Ninguno',
           ]}
           value={data.symptoms_list}
-          onChange={(value) => updateField('symptoms_list', value)}
+          onChange={(value) => updateField('symptoms_list', value as string[])}
           multiple
           exclusiveOptions={['Ninguno']}
         />
@@ -55,7 +55,7 @@ export const ReasonStep: React.FC = () => {
           'Nunca',
         ]}
         value={data.last_exam}
-        onChange={(value) => updateField('last_exam', value)}
+        onChange={(value) => updateField('last_exam', value as string)}
         required
       />
     </StepWrapper>

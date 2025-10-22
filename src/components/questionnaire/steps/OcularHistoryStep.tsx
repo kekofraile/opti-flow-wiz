@@ -47,7 +47,7 @@ export const OcularHistoryStep: React.FC = () => {
           'Ninguno',
         ]}
         value={data.ocular_dx}
-        onChange={(value) => updateField('ocular_dx', value)}
+        onChange={(value) => updateField('ocular_dx', value as string[])}
         multiple
         exclusiveOptions={['Ninguno']}
       />
@@ -81,7 +81,7 @@ export const OcularHistoryStep: React.FC = () => {
             'Otros procedimientos/terapias oculares',
           ]}
           value={data.ocular_tx}
-          onChange={(value) => updateField('ocular_tx', value)}
+          onChange={(value) => updateField('ocular_tx', value as string[])}
           multiple
           required
         />
@@ -106,7 +106,7 @@ export const OcularHistoryStep: React.FC = () => {
             'Otro trauma ocular relevante',
           ]}
           value={data.ocular_trauma}
-          onChange={(value) => updateField('ocular_trauma', value)}
+          onChange={(value) => updateField('ocular_trauma', value as string[])}
           multiple
           required
         />

@@ -29,7 +29,7 @@ export const FamilyHistoryStep: React.FC = () => {
           'Ninguno',
         ]}
         value={data.family_dx}
-        onChange={(value) => updateField('family_dx', value)}
+        onChange={(value) => updateField('family_dx', value as string[])}
         multiple
         exclusiveOptions={['Ninguno']}
       />

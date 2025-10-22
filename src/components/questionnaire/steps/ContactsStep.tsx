@@ -23,7 +23,7 @@ export const ContactsStep: React.FC = () => {
         options={['Sí', 'No']}
         value={data.uses_contacts}
         onChange={(value) => {
-          updateField('uses_contacts', value);
+          updateField('uses_contacts', value as string);
           if (value !== 'Sí') {
             cleanUpFields(updateField, [
               'contacts_freq',
@@ -48,7 +48,7 @@ export const ContactsStep: React.FC = () => {
             ]}
             value={data.contacts_freq}
             onChange={(value) => {
-              updateField('contacts_freq', value);
+              updateField('contacts_freq', value as string);
               if (value === 'Ya no las uso') {
                 cleanUpFields(updateField, [
                   'contacts_hours',
@@ -69,7 +69,7 @@ export const ContactsStep: React.FC = () => {
               'No lo sé',
             ]}
             value={data.contacts_type}
-            onChange={(value) => updateField('contacts_type', value)}
+            onChange={(value) => updateField('contacts_type', value as string[])}
             multiple
             required
           />
@@ -80,7 +80,7 @@ export const ContactsStep: React.FC = () => {
                 label="Horas de uso al día"
                 options={['< 4 h', '4–8 h', '> 8 h']}
                 value={data.contacts_hours}
-                onChange={(value) => updateField('contacts_hours', value)}
+                onChange={(value) => updateField('contacts_hours', value as string)}
                 required
               />
 
@@ -89,7 +89,7 @@ export const ContactsStep: React.FC = () => {
                 options={['Muy buena', 'Buena', 'Regular', 'Mala']}
                 value={data.contacts_comfort}
                 onChange={(value) =>
-                  updateField('contacts_comfort', value)
+                  updateField('contacts_comfort', value as string)
                 }
                 required
               />

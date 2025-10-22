@@ -30,7 +30,7 @@ export const GeneralHealthStep: React.FC = () => {
           'Ninguna',
         ]}
         value={data.systemic}
-        onChange={(value) => updateField('systemic', value)}
+        onChange={(value) => updateField('systemic', value as string[])}
         multiple
         exclusiveOptions={['Ninguna']}
       />
@@ -53,7 +53,7 @@ export const GeneralHealthStep: React.FC = () => {
           'Ninguna',
         ]}
         value={data.allergies}
-        onChange={(value) => updateField('allergies', value)}
+        onChange={(value) => updateField('allergies', value as string[])}
         multiple
         exclusiveOptions={['Ninguna']}
       />

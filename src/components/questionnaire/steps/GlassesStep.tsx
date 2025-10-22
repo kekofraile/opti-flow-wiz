@@ -23,7 +23,7 @@ export const GlassesStep: React.FC = () => {
         options={['Sí', 'No']}
         value={data.uses_glasses}
         onChange={(value) => {
-          updateField('uses_glasses', value);
+          updateField('uses_glasses', value as string);
           if (value !== 'Sí') {
             cleanUpFields(updateField, [
               'glasses_use',
@@ -48,7 +48,7 @@ export const GlassesStep: React.FC = () => {
               'Para todas las distancias',
             ]}
             value={data.glasses_use}
-            onChange={(value) => updateField('glasses_use', value)}
+            onChange={(value) => updateField('glasses_use', value as string[])}
             multiple
             required
           />
@@ -58,7 +58,7 @@ export const GlassesStep: React.FC = () => {
             options={['Sí', 'No']}
             value={data.progressives}
             onChange={(value) => {
-              updateField('progressives', value);
+              updateField('progressives', value as string);
               if (value !== 'Sí') {
                 updateField('progressive_adapt', undefined);
               }
@@ -71,7 +71,7 @@ export const GlassesStep: React.FC = () => {
               label="¿Cómo ha sido su adaptación a las progresivas?"
               options={['Muy buena', 'Buena', 'Regular', 'Mala']}
               value={data.progressive_adapt}
-              onChange={(value) => updateField('progressive_adapt', value)}
+              onChange={(value) => updateField('progressive_adapt', value as string)}
               required
             />
           )}
@@ -80,7 +80,7 @@ export const GlassesStep: React.FC = () => {
             label="¿Cuánto tiempo lleva con sus gafas actuales?"
             options={['< 1 año', '1–2 años', '> 2 años', 'No lo recuerda']}
             value={data.glasses_age}
-            onChange={(value) => updateField('glasses_age', value)}
+            onChange={(value) => updateField('glasses_age', value as string)}
             required
           />
 
@@ -88,7 +88,7 @@ export const GlassesStep: React.FC = () => {
             label="¿Cómo califica su visión con sus gafas actuales?"
             options={['Muy buena', 'Aceptable', 'Mejorable', 'Mala']}
             value={data.glasses_satisfaction}
-            onChange={(value) => updateField('glasses_satisfaction', value)}
+            onChange={(value) => updateField('glasses_satisfaction', value as string)}
             required
           />
         </>

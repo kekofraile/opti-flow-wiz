@@ -701,10 +701,15 @@ const QuestionnaireContent: React.FC = () => {
   };
 
   const handleReset = () => {
+    const confirmation = window.confirm(
+      'Esto borrará las respuestas guardadas y reiniciará el cuestionario. ¿Desea continuar?',
+    );
+    if (!confirmation) return;
+
     resetQuestionnaire();
     setShowCompletionDialog(false);
     setCompletionTimestamp(null);
-    toast.success('Cuestionario listo para un nuevo paciente');
+    toast.success('Respuestas anteriores borradas');
   };
 
   useEffect(() => {
@@ -830,15 +835,6 @@ const QuestionnaireContent: React.FC = () => {
     }
   };
 
-  const handleReset = () => {
-    const confirmation = window.confirm(
-      'Esto borrará las respuestas guardadas y reiniciará el cuestionario. ¿Desea continuar?',
-    );
-    if (!confirmation) return;
-
-    resetQuestionnaire();
-    toast.success('Respuestas anteriores borradas');
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted kiosk-mode">

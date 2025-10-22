@@ -181,7 +181,7 @@ export const ReviewStep: React.FC = () => {
           <Checkbox
             id="final_consent"
             checked={data.final_consent || false}
-            onCheckedChange={(checked) => updateField('final_consent', checked)}
+            onCheckedChange={(checked) => updateField('final_consent', checked as boolean)}
             className="mt-1"
           />
           <label

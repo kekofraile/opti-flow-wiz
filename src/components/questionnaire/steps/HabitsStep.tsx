@@ -25,7 +25,7 @@ export const HabitsStep: React.FC = () => {
             label="Horas de pantalla al día"
             options={['< 2 h', '2–4 h', '4–8 h', '> 8 h']}
             value={data.screens}
-            onChange={(value) => updateField('screens', value)}
+            onChange={(value) => updateField('screens', value as string)}
             required
           />
 
@@ -38,7 +38,7 @@ export const HabitsStep: React.FC = () => {
               'Casi nunca',
             ]}
             value={data.near_tasks}
-            onChange={(value) => updateField('near_tasks', value)}
+            onChange={(value) => updateField('near_tasks', value as string)}
             required
           />
         </div>
@@ -53,7 +53,7 @@ export const HabitsStep: React.FC = () => {
             label="¿Conduce de noche?"
             options={['Sí, habitualmente', 'A veces', 'Rara vez o nunca']}
             value={data.night_drive}
-            onChange={(value) => updateField('night_drive', value)}
+            onChange={(value) => updateField('night_drive', value as string)}
             required
           />
 
@@ -62,7 +62,7 @@ export const HabitsStep: React.FC = () => {
               label="¿Tiene deslumbramiento al conducir de noche?"
               options={['Mucho', 'A veces', 'No']}
               value={data.night_glare}
-              onChange={(value) => updateField('night_glare', value)}
+              onChange={(value) => updateField('night_glare', value as string)}
               required
             />
           )}
@@ -78,7 +78,7 @@ export const HabitsStep: React.FC = () => {
             label="Tiempo al aire libre (de día)"
             options={['Muchas horas', 'Un par de horas', 'Muy poco']}
             value={data.outdoor}
-            onChange={(value) => updateField('outdoor', value)}
+            onChange={(value) => updateField('outdoor', value as string)}
             required
           />
 
@@ -86,7 +86,7 @@ export const HabitsStep: React.FC = () => {
             label="Sensibilidad a la luz solar"
             options={['Sí, mucha', 'Un poco', 'No']}
             value={data.photophobia}
-            onChange={(value) => updateField('photophobia', value)}
+            onChange={(value) => updateField('photophobia', value as string)}
             required
           />
 
@@ -94,7 +94,7 @@ export const HabitsStep: React.FC = () => {
             label="Uso de gafas de sol"
             options={['Casi siempre', 'A veces', 'Rara vez o nunca']}
             value={data.sunglasses}
-            onChange={(value) => updateField('sunglasses', value)}
+            onChange={(value) => updateField('sunglasses', value as string)}
             required
           />
         </div>
