@@ -30,7 +30,18 @@ interface QuestionnaireProviderProps {
 export const QuestionnaireProvider: React.FC<QuestionnaireProviderProps> = ({ children, totalSteps }) => {
   const [data, setData] = useState<Partial<QuestionnaireData>>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : {};
+
+    if (!saved) return {};
+
+    try {
+      return JSON.parse(saved);
+    } catch (error) {
+      localStorage.removeItem(STORAGE_KEY);
+      toast.info('Reiniciamos el cuestionario guardado', {
+        description: 'Los datos almacenados eran inválidos. Puedes completar el formulario de nuevo.',
+      });
+      return {};
+    }
   });
   
   const [currentStep, setCurrentStep] = useState(0);
