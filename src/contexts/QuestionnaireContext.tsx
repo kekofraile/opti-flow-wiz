@@ -64,6 +64,23 @@ export const QuestionnaireProvider: React.FC<QuestionnaireProviderProps> = ({ ch
   }, [updateActivity]);
 
   useEffect(() => {
+    const activityEvents: Array<keyof WindowEventMap> = [
+      'mousemove',
+      'keydown',
+      'scroll',
+      'touchstart',
+    ];
+
+    activityEvents.forEach(event => window.addEventListener(event, updateActivity));
+
+    return () => {
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, updateActivity);
+      });
+    };
+  }, [updateActivity]);
+
+  useEffect(() => {
     const checkInactivity = setInterval(() => {
       const inactive = Date.now() - lastActivity;
       
