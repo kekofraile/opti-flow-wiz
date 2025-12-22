@@ -26,6 +26,88 @@ import { Button } from '@/components/ui/button';
 import { QuestionnaireData } from '@/types/questionnaire';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+type ValidationMessageKey = 'requiredFields' | 'medicationRequired' | 'consentRequired';
+
+const validationMessages: Record<ValidationMessageKey, string> = {
+  requiredFields: 'Por favor complete todos los campos obligatorios',
+  medicationRequired: 'Por favor indique si sigue tratamiento sistémico con posible impacto ocular',
+  consentRequired: 'Debe confirmar que la información es correcta',
+};
+
+const isFieldEmpty = (value: unknown): boolean => {
+  if (value === null || value === undefined) return true;
+  if (typeof value === 'string') return value.trim().length === 0;
+  if (Array.isArray(value)) return value.length === 0;
+  return false;
+};
+
+const isAnyFieldEmpty = (data: Partial<QuestionnaireData>, fields: (keyof QuestionnaireData)[]) => {
+  return fields.some(field => isFieldEmpty(data[field]));
+};
+
+type ValidationRule = (data: Partial<QuestionnaireData>) => ValidationMessageKey | null;
+type ValidationRulesMap = Record<number, ValidationRule[]>;
+
+const requireFieldsRule = (
+  fields: (keyof QuestionnaireData)[],
+  messageKey: ValidationMessageKey = 'requiredFields',
+  predicate?: (data: Partial<QuestionnaireData>) => boolean,
+): ValidationRule => {
+  return data => {
+    if (predicate && !predicate(data)) return null;
+    return isAnyFieldEmpty(data, fields) ? messageKey : null;
+  };
+};
+
+const validationRules: ValidationRulesMap = {
+  1: [requireFieldsRule(['reason_list', 'last_exam'])],
+  2: [
+    requireFieldsRule(['uses_glasses']),
+    requireFieldsRule(
+      ['glasses_use', 'progressives', 'glasses_age', 'glasses_satisfaction'],
+      'requiredFields',
+      data => data.uses_glasses === 'Sí',
+    ),
+    data =>
+      data.uses_glasses === 'Sí' && data.progressives === 'Sí' && isFieldEmpty(data.progressive_adapt)
+        ? 'requiredFields'
+        : null,
+  ],
+  3: [
+    requireFieldsRule(['uses_contacts']),
+    requireFieldsRule(
+      ['contacts_freq', 'contacts_hours', 'contacts_comfort', 'contacts_type'],
+      'requiredFields',
+      data => data.uses_contacts === 'Sí',
+    ),
+  ],
+  7: [requireFieldsRule(['medications_any'], 'medicationRequired')],
+  8: [
+    requireFieldsRule(['screens', 'near_tasks', 'night_drive', 'outdoor', 'photophobia', 'sunglasses']),
+    data =>
+      ['Sí, habitualmente', 'A veces'].includes(data.night_drive ?? '') && isFieldEmpty(data.night_glare)
+        ? 'requiredFields'
+        : null,
+  ],
+  9: [requireFieldsRule(['final_consent'], 'consentRequired')],
+};
+
+export const validateStepData = (
+  step: number,
+  data: Partial<QuestionnaireData>,
+): { valid: boolean; messageKey?: ValidationMessageKey } => {
+  const stepRules = validationRules[step] ?? [];
+
+  for (const rule of stepRules) {
+    const messageKey = rule(data);
+    if (messageKey) {
+      return { valid: false, messageKey };
+    }
+  }
+
+  return { valid: true };
+};
+
 const steps = [
   WelcomeStep,
   ReasonStep,
@@ -650,85 +732,13 @@ const QuestionnaireContent: React.FC = () => {
   }, [updateActivity]);
 
   const validateStep = (): boolean => {
-    switch (currentStep) {
-      case 0: // Welcome
-        break;
-      case 1: // Reason
-        if (!data.reason_list || data.reason_list.length === 0 || !data.last_exam) {
-          toast.error('Por favor complete todos los campos obligatorios');
-          return false;
-        }
-        break;
-      case 2: // Glasses
-        if (!data.uses_glasses) {
-          toast.error('Por favor complete todos los campos obligatorios');
-          return false;
-        }
+    const validation = validateStepData(currentStep, data);
 
-        if (data.uses_glasses === 'Sí') {
-          if (!data.glasses_use || data.glasses_use.length === 0) {
-            toast.error('Por favor complete todos los campos obligatorios');
-            return false;
-          }
-
-          if (!data.progressives) {
-            toast.error('Por favor complete todos los campos obligatorios');
-            return false;
-          }
-
-          if (data.progressives === 'Sí' && !data.progressive_adapt) {
-            toast.error('Por favor complete todos los campos obligatorios');
-            return false;
-          }
-
-          if (!data.glasses_age || !data.glasses_satisfaction) {
-            toast.error('Por favor complete todos los campos obligatorios');
-            return false;
-          }
-        }
-        break;
-      case 3: // Contacts
-        if (!data.uses_contacts) {
-          toast.error('Por favor complete todos los campos obligatorios');
-          return false;
-        }
-
-        if (data.uses_contacts === 'Sí') {
-          if (!data.contacts_freq || !data.contacts_hours || !data.contacts_comfort) {
-            toast.error('Por favor complete todos los campos obligatorios');
-            return false;
-          }
-
-          if (!data.contacts_type || data.contacts_type.length === 0) {
-            toast.error('Por favor complete todos los campos obligatorios');
-            return false;
-          }
-        }
-        break;
-      case 8: // Habits
-        if (!data.screens || !data.near_tasks || !data.night_drive || !data.outdoor || !data.photophobia || !data.sunglasses) {
-          toast.error('Por favor complete todos los campos obligatorios');
-          return false;
-        }
-
-        if (['Sí, habitualmente', 'A veces'].includes(data.night_drive) && !data.night_glare) {
-          toast.error('Por favor complete todos los campos obligatorios');
-          return false;
-        }
-        break;
-      case 7: // Medication (tratamientos sistémicos)
-        if (!data.medications_any) {
-          toast.error('Por favor indique si sigue tratamiento sistémico con posible impacto ocular');
-          return false;
-        }
-        break;
-      case 9: // Review
-        if (!data.final_consent) {
-          toast.error('Debe confirmar que la información es correcta');
-          return false;
-        }
-        break;
+    if (!validation.valid && validation.messageKey) {
+      toast.error(validationMessages[validation.messageKey]);
+      return false;
     }
+
     return true;
   };
 
